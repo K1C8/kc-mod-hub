@@ -1,9 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { requestedScopes } from "./constants";
 
 const AuthTokenContext = React.createContext();
-
-const requestedScopes = ["profile", "email"];
 
 function AuthTokenProvider({ children }) {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();

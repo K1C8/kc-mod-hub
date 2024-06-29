@@ -1,15 +1,15 @@
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import NotFound from "./components/NotFound";
 import Home from "./components/Home";
+import VerifyUser from "./components/VerifyUser";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { AuthTokenProvider } from "./AuthTokenContext";
+import { requestedScopes } from "./constants";
 
 const container = document.getElementById("root");
-const root = ReactDOMClient.createRoot(container);
 
-const requestedScopes = ["profile", "email"];
+const root = ReactDOMClient.createRoot(container);
 
 root.render(
   <React.StrictMode>
@@ -26,7 +26,7 @@ root.render(
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/verify-user" element={<VerifyUser />} />
           </Routes>
         </BrowserRouter>
       </AuthTokenProvider>

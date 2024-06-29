@@ -1,5 +1,3 @@
-import "../style/appLayout.css";
-
 import { useEffect } from "react";
 import { useAuthToken } from "../AuthTokenContext";
 import { useNavigate } from "react-router-dom";
@@ -21,8 +19,9 @@ export default function VerifyUser() {
       });
       const user = await data.json();
 
+      // TODO: redirect here to where the user should go after verifying their account
       if (user.auth0Id) {
-        navigate("/app");
+        navigate("/");
       }
     }
 
@@ -31,5 +30,18 @@ export default function VerifyUser() {
     }
   }, [accessToken, navigate]);
 
-  return <div className="loading">Loading...</div>;
+  return (
+    <div className="loading">
+      <h1>Loading...</h1>
+      <p>
+        If you keep seeing this message after logging in, please verify your
+        Network tab in the browser's Developer Tools to see if there are any
+        errors.
+      </p>
+      <p>
+        Check also your api terminal for any errors in the POST /verify-user
+        route.
+      </p>
+    </div>
+  );
 }
