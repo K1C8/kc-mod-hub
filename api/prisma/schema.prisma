@@ -29,6 +29,7 @@ model Content {
   authorId     Int      
   file         String
   image        String?
+  video        String?
 }
 
 model UserSubscription {

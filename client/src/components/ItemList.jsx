@@ -8,17 +8,19 @@ const ItemList = () => {
   ];
 
   return (
-    <div className="content-containter">
-        <div className="content-list grid">
+    <div className="flex py-10">
+        <div className="grid grid-cols-3 gap-3 w-3/4 px-8">
         {items.map((item) => (
-            <div key={item.id} className="content-item bg-gray-50 rounded-xl ring-1 ring-slate-300">
-            <img src={item.thumbnail} alt={item.name} className="content-item-image" />
-            <h3 className="content-item-title">{item.name}</h3>
-            <a href={item.link} target="_blank" rel="noopener noreferrer">View More</a>
+          <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer">
+            <div  className="content-item bg-gray-50 rounded-xl ring-1 ring-slate-300 p-3">
+              <img src={item.thumbnail} alt={item.name} className="content-item-image" />
+              <h3 className="text-xl font-semibold">{item.name}</h3>
+              <p className="font-light">View More</p>
             </div>
+          </a>
         ))}
         </div>
-        <div className="content-menu">
+        <div className="content-menu mx-3 p-3 bg-slate-50 rounded-xl ring-1 ring-slate-300">
             <h2>Introduction</h2>
             <p>Click the search icon in the nav bar to activate search input, searching function not implemented though.</p>
             <p>Click the Pride button to change background and text color of some of the nav bar items by adding and removing

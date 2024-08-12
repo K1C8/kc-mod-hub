@@ -12,16 +12,16 @@ export default function Banner() {
             {isAuthenticated ? (
                 <ul className="nav-menu-items flex place-content-evenly" id="top-half-nav-menu">
                     <li className="nav-menu-item">
-                        <Link to="/app">Home</Link>
+                        <Link to="/">Home</Link>
                     </li>
                     <li className="nav-menu-item">
-                        <Link to="/app/profile">Profile</Link>
+                        <Link to="/profile">Profile</Link>
                     </li>
                     <li className="nav-menu-item">
-                        <Link to="/app/debugger">Auth Debugger</Link>
+                        <Link to="/auth-debug">Auth Debugger</Link>
                     </li>
                     <li className="nav-menu-item">
-                        <div>Welcome 👋 {user.name} </div>
+                        <div>Welcome, {user.nickname} </div>
                     </li>
                     <li className="nav-menu-item">
                         <button
@@ -31,27 +31,29 @@ export default function Banner() {
                             LogOut
                         </button>
                     </li>
-                    
+
                 </ul>
-                ) : (
+            ) : (
                 <ul className="nav-menu-items flex place-content-evenly" id="top-half-nav-menu">
                     <li className="nav-menu-item">
-                        <Link to="/app">Home</Link>
-                    </li>  
+                        <Link to="/">Home</Link>
+                    </li>
 
                     <li className="nav-menu-item">
-                        <button className="px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm" onClick={loginWithRedirect}>
+                        <button className="px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
+                            onClick={loginWithRedirect}>
                             Login
                         </button>
                     </li>
                     <li className="nav-menu-item">
-                        <button className="px-4 py-2 font-semibold text-sm bg-blue-400 text-white rounded-full shadow-sm" onClick={signUp}>
+                        <button className="px-4 py-2 font-semibold text-sm bg-blue-400 text-white rounded-full shadow-sm"
+                            onClick={signUp}>
                             Create Account
                         </button>
-                    </li>                  
-                        
-                </ul>    
-                )
+                    </li>
+
+                </ul>
+            )
             }
         </nav>
     )
