@@ -23,7 +23,7 @@ const SideBar = () => {
 
                 <div className="p-4">
                     <p>
-                        Log in to view your subscription list.
+                        Log in to view your subscription list, items from your followed users and upload files created by you.
                     </p>
 
                 </div>)

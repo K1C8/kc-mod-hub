@@ -1,19 +1,29 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import Banner from "./Banner"
-import ItemList from "./ItemList";
 import '../style/workshop_o.css'
 
 export default function FilePage() {
-  const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
+  // const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
+
+  const { fileId } = useParams(); // Access the file ID from the URL
+
+  // Logic to fetch the file details using the fileId
+  // For example, you can make an API call to fetch the data
+  // Here is a mock file data example:
+  const fileData = {
+    id: fileId,
+    name: `File ${fileId}`,
+    description: `This is a description for file with ID ${fileId}.`,
+    // Other file data...
+  };
+
 
   return (
     <div className="bg-sky-100">
       <Banner />
-      <h1 className="text-2xl font-extrabold px-4 py-8 tracking-tight">Your profile at Modding Hub</h1>
-      <h2 className="text-xl font-bold px-4 py-4 tracking-tight">Files you subscribed</h2>
-      <p>Placeholder</p>
-      <p className="text px-4 py-4 tracking-tight">Welcome to the Modding Hub!</p>
-      <ItemList />
+      <h1>{fileData.name}</h1>
+      <p>{fileData.description}</p>
+      {/* Render more file details as needed */}
     </div>
   );
 }

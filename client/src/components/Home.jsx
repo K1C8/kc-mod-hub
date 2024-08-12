@@ -13,14 +13,11 @@ export default function Home() {
       <Banner />
       <h1 className="text-2xl font-extrabold px-4 pt-8 tracking-tight">Modding Hub</h1>
       <p className="text px-4 py-4 tracking-tight">Welcome to the Modding Hub!</p>
-
+      {/* Display items by the followed users if logged in.*/}
       <div className="flex py-10">
         <div className="grid grid-rows-3 gap-3 w-3/4 px-4">
           <ItemList />
-          {isAuthenticated ? (
-            <FollowingItemList />
-          ) : (<div></div>)
-          }
+          {isAuthenticated && <FollowingItemList />}
         </div>
         <SideBar />
       </div>
