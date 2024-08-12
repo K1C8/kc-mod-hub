@@ -1,6 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import "../style/workshop_o.css"
+import AuthDebug from "./AuthDebug";
 
 export default function Banner() {
     const navigate = useNavigate();
@@ -18,17 +19,22 @@ export default function Banner() {
                         <Link to="/profile">Profile</Link>
                     </li>
                     <li className="nav-menu-item">
-                        <Link to="/auth-debug">Auth Debugger</Link>
-                    </li>
-                    <li className="nav-menu-item">
                         <div>Welcome, {user.nickname} </div>
                     </li>
                     <li className="nav-menu-item">
                         <button
-                            className="px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
+                            className="px-4 py-2 font-bold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
                             onClick={() => logout({ returnTo: window.location.origin })}
                         >
-                            LogOut
+                            Log Out
+                        </button>
+                    </li>
+                    <li className="nav-menu-item">
+                        <button
+                            className="px-4 py-2 font-bold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
+                            onClick={AuthDebug}
+                        >
+                            Auth Debugger
                         </button>
                     </li>
 
@@ -40,13 +46,13 @@ export default function Banner() {
                     </li>
 
                     <li className="nav-menu-item">
-                        <button className="px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
+                        <button className="px-4 py-2 font-bold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
                             onClick={loginWithRedirect}>
                             Login
                         </button>
                     </li>
                     <li className="nav-menu-item">
-                        <button className="px-4 py-2 font-semibold text-sm bg-blue-400 text-white rounded-full shadow-sm"
+                        <button className="px-4 py-2 font-bold text-sm bg-blue-400 text-white rounded-full shadow-sm"
                             onClick={signUp}>
                             Create Account
                         </button>
