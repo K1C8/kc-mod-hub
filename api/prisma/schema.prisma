@@ -17,23 +17,26 @@ model User {
   id           Int      @id @default(autoincrement())
   email        String   @unique
   auth0Id      String   @unique @default("")
-  name         String?
+  name         String?  @db.VarChar(511)
+  nickname     String?  @db.VarChar(511)
   subscription UserSubscription[]
   content      Content[]
-  following    UserFollowing[]
+  following    UserFollowed[] @relation("Following")
+  followedBy   UserFollowed[] @relation("FollowedBy")
 }
 
 model Content {
   id           Int      @id @default(autoincrement())
-  name         String
+  name         String   @db.VarChar(1023)
   author       User     @relation(fields: [authorId], references: [id])
   authorId     Int      
-  file         String
-  image        String?
-  video        String?  
-  uploadTime   DateTime
-  lastUpdateTime DateTime
-  desc         String?
+  file         String   @db.VarChar(1023)
+  image        String?  @db.Text 
+  video        String?  @db.Text
+  uploadTime   DateTime @default(now())
+  lastUpdateTime DateTime @updatedAt
+  desc         String?  @db.Text
+  subscription UserSubscription[]
 }
 
 model UserSubscription {
@@ -42,14 +45,14 @@ model UserSubscription {
   userId       Int
   content      Content  @relation(fields: [contentId], references: [id])
   contentId    Int     
-  subscibeTime DateTime
+  subscibeTime DateTime @default(now())
 }
 
-model UserFollowing {
+model UserFollowed {
   id           Int      @id @default(autoincrement())
-  user         User     @relation(field: [userId], references: [id])
+  user         User     @relation("FollowedBy", fields: [userId], references: [id])
   userId       Int      
-  followingUser User    @relation(field: [followingUserId], references: [id])
-  followingUserId Int
-  followTime   DateTime
+  followedUser User     @relation("Following", fields: [followedUserId], references: [id])
+  followedUserId Int
+  followTime   DateTime @default(now())
 }
