@@ -61,6 +61,13 @@ app.post("/verify-user", requireAuth, async (req, res) => {
   }
 });
 
+
+// Endpoint to fetch user's subscribed files. This endpoint requires authentication to be called.
+app.get("/get-user-subscription", requireAuth, async(req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  
+}
+
 app.listen(8000, () => {
   console.log("Server running on http://localhost:8000 🎉 🚀");
 });
