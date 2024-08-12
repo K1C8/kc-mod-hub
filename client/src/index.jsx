@@ -8,6 +8,7 @@ import { Auth0Provider } from "@auth0/auth0-react";
 import { AuthTokenProvider } from "./AuthTokenContext";
 import { requestedScopes } from "./constants";
 import "./style/workshop_o.css"
+import FilePage from "./components/FilePage";
 
 const container = document.getElementById("root");
 
@@ -42,6 +43,7 @@ root.render(
             <Route path="/" element={<Home />} />
             <Route path="/verify-user" element={<VerifyUser />} />
             <Route path="/auth-debug" element={<AuthDebug />} />
+            <Route path="/file/:fileId" element={<FilePage />} />
           </Routes>
         </BrowserRouter>
       </AuthTokenProvider>

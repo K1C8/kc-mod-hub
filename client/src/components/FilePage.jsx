@@ -3,7 +3,7 @@ import Banner from "./Banner"
 import ItemList from "./ItemList";
 import '../style/workshop_o.css'
 
-export default function Profile() {
+export default function FilePage() {
   const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
 
   return (

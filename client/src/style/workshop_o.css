@@ -557,6 +557,10 @@ video {
   grid-column: span 2 / span 2;
 }
 
+.col-span-3 {
+  grid-column: span 3 / span 3;
+}
+
 .m-4 {
   margin: 1rem;
 }
@@ -608,6 +612,10 @@ video {
   height: 100%;
 }
 
+.h-max {
+  height: max-content;
+}
+
 .max-h-20 {
   max-height: 5rem;
 }
@@ -634,6 +642,10 @@ video {
 
 .min-h-12 {
   min-height: 3rem;
+}
+
+.min-h-full {
+  min-height: 100%;
 }
 
 .w-3\/4 {
@@ -678,6 +690,10 @@ video {
 
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-rows-3 {
+  grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
 .place-content-evenly {
@@ -832,6 +848,14 @@ video {
 
 .pt-8 {
   padding-top: 2rem;
+}
+
+.pt-4 {
+  padding-top: 1rem;
+}
+
+.pb-4 {
+  padding-bottom: 1rem;
 }
 
 .align-middle {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 
-const ItemList = () => {
+const FollowingItemList = () => {
   const { user, isAuthenticated } = useAuth0();
   const items = [
     { id: 1, name: 'Placeholder Item 1', link: '', desc: 'Ipsum Lorem', thumbnail: 'https://worldlandscapearchitect.com/wp-content/uploads/2024/06/Mildred-Creak_Neurodiversity-COVER-326x245.jpg' },
@@ -10,8 +10,8 @@ const ItemList = () => {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3 px-4 pb-4">
-      <p className='text-xl font-bold col-span-3'>Most Recent Files</p>
+    <div className="grid grid-cols-3 gap-3 px-4 pt-4">
+      <p className='text-xl font-bold col-span-3'>From Followed Users</p>
       {items.map((item) => (
         <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer">
           <div className="content-item bg-gray-50 rounded-xl ring-1 ring-slate-300 p-3">
@@ -27,4 +27,4 @@ const ItemList = () => {
   );
 };
 
-export default ItemList;
+export default FollowingItemList;
