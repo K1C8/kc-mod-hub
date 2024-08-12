@@ -33,6 +33,7 @@ app.get("/ping", (req, res) => {
 // if the user is already registered we will return the user information
 app.post("/verify-user", requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
+  console.log(req.auth.payload)
   // we are using the audience to get the email and name from the token
   // if your audience is different you should change the key to match your audience
   // the value should match your audience according to this document: https://docs.google.com/document/d/1lYmaGZAS51aeCxfPzCwZHIk6C5mmOJJ7yHBNPJuGimU/edit#heading=h.fr3s9fjui5yn

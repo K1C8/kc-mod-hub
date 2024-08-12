@@ -11,6 +11,18 @@ const container = document.getElementById("root");
 
 const root = ReactDOMClient.createRoot(container);
 
+// function RequireAuth({ children }) {
+//   const { isAuthenticated, isLoading } = useAuth0();
+
+//   // If the user is not authenitcated, redirect to the home page
+//   if (!isLoading && !isAuthenticated) {
+//     return <Navigate to="/" replace />;
+//   }
+
+//   // Otherwise, display the children (the protected page)
+//   return children;
+// }
+
 root.render(
   <React.StrictMode>
     <Auth0Provider
