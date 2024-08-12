@@ -2,11 +2,18 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useAuthToken } from "../AuthTokenContext";
 
 export default function AuthDebug() {
-  const { user } = useAuth0();
+  const { user, loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
   const { accessToken } = useAuthToken();
 
   return (
     <div>
+      <div>
+        <button className="btn-primary" onClick={loginWithRedirect}>
+          Login
+        </button>
+        <p>Loading: {String(isLoading)} </p>
+        <p>User Authenticated: {String(isAuthenticated)}</p>
+      </div>
       <div>
         <p>Access Token:</p>
         <pre>{JSON.stringify(accessToken, null, 2)}</pre>
