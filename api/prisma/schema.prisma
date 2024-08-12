@@ -18,8 +18,9 @@ model User {
   email        String   @unique
   auth0Id      String   @unique @default("")
   name         String?
-  subscriptions UserSubscription[]
-  contents     Content[]
+  subscription UserSubscription[]
+  content      Content[]
+  following    UserFollowing[]
 }
 
 model Content {
@@ -29,7 +30,10 @@ model Content {
   authorId     Int      
   file         String
   image        String?
-  video        String?
+  video        String?  
+  uploadTime   DateTime
+  lastUpdateTime DateTime
+  desc         String?
 }
 
 model UserSubscription {
@@ -38,4 +42,14 @@ model UserSubscription {
   userId       Int
   content      Content  @relation(fields: [contentId], references: [id])
   contentId    Int     
+  subscibeTime DateTime
+}
+
+model UserFollowing {
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(field: [userId], references: [id])
+  userId       Int      
+  followingUser User    @relation(field: [followingUserId], references: [id])
+  followingUserId Int
+  followTime   DateTime
 }
