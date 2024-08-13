@@ -61,12 +61,37 @@ app.post("/verify-user", requireAuth, async (req, res) => {
   }
 });
 
+app.get('/get-files', async (req, res) => {
+  try {
+    // Fetch all Content entries from the database
+    const contents = await prisma.content.findMany({
+      select: {
+        id: true,
+        name: true,
+        file: true,
+        image: true,
+        lastUpdateTime: true,
+        desc: true,
+      },
+      orderBy: {
+        lastUpdateTime: 'desc',
+      },
+    });
+
+    // Send the fetched data as the response
+    res.status(200).json(contents);
+  } catch (error) {
+    // Handle errors
+    console.error('Error fetching content:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // Endpoint to fetch user's subscribed files. This endpoint requires authentication to be called.
 app.get("/get-user-subscription", requireAuth, async(req, res) => {
   const auth0Id = req.auth.payload.sub;
   
-}
+});
 
 app.listen(8000, () => {
   console.log("Server running on http://localhost:8000 🎉 🚀");
