@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useAuthToken } from "../AuthTokenContext";
 
-export default function useSubscription() {
+export default function useFollow() {
     const [followed, setFollowed] = useState([]);
     const { accessToken } = useAuthToken();
 
     // AuthToken will be checked at the back-end during unsubscribbing content. 
     useEffect(() => {
-        async function subscibbing() {
-            const data = await fetch(`${process.env.REACT_APP_API_URL}/get-user-subscription`, {
+        async function getFollowed() {
+            const data = await fetch(`${process.env.REACT_APP_API_URL}/get-followed-user`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -16,13 +16,13 @@ export default function useSubscription() {
                 }
             });
             const result = await data.json();
-            setSubscription(result);
+            setFollowed(result);
         }
 
-        subscibbing();
+        getFollowed();
     }, [accessToken]);
 
 
-    return [subscription, setSubscription];
+    return [followed, setFollowed];
 
 }

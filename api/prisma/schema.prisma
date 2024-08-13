@@ -53,10 +53,10 @@ model UserSubscription {
 }
 
 model UserFollowed {
-  id           Int      @id @default(autoincrement())
   user         User     @relation("FollowedBy", fields: [userId], references: [id])
   userId       Int      
   followedUser User     @relation("Following", fields: [followedUserId], references: [id])
   followedUserId Int
   followTime   DateTime @default(now())
+  @@id([userId, followedUserId])
 }

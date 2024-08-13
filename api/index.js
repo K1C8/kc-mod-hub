@@ -26,7 +26,7 @@ const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
 async function getUserIdFromAuth0Id(auth0Id) {
-  const user =  await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       auth0Id,
     },
@@ -202,8 +202,51 @@ app.get("/get-user-subscription", requireAuth, async (req, res) => {
 
 });
 
-
 // Endpoint to fetch user's subscribed files. This endpoint requires authentication to be called.
+app.get("/get-followed-user", requireAuth, async (req, res) => {
+  try {
+    const auth0Id = req.auth.payload.sub;
+    console.log(`${auth0Id}`);
+    if (!(typeof auth0Id === 'string')) {
+      throw TypeError("Auth0Id is not a valid string.")
+    }
+
+    const userId = await getUserIdFromAuth0Id(auth0Id);
+    console.log(`User id checked from auth0 is ${userId}`);
+    if (userId <= 0 || !(!isNaN(parseFloat(userId)) && !isNaN(userId - 0))) {
+      throw TypeError("User id is not a valid number.")
+    }
+    const followedUserIdArray = await prisma.userFollowed.findMany({
+      select: {
+        followedUserId: true,
+      },
+      where: {
+        userId: parseInt(userId),
+      },
+    });
+    const followedUserId = followedUserIdArray.map(fo => fo.followedUserId);
+
+    // Send the fetched data as the response
+    res.status(200).json(followedUserId);
+
+  } catch (e) {
+    if (e instanceof TypeError) {
+      // TypeError action here
+      console.error('Error fetching content:', e);
+      res.status(400).json({ error: 'Auth0Id is not a valid string.' });
+    } else {
+      // Handle other errors
+      console.error('Error fetching content:', e);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+  }
+
+});
+
+
+
+// Endpoint to fetch user's subscribed files from their followed users. This endpoint requires authentication to be called.
 app.get("/get-followed-contents", requireAuth, async (req, res) => {
   try {
     const auth0Id = req.auth.payload.sub;
@@ -306,8 +349,110 @@ app.post('/subscibe-content', requireAuth, async (req, res) => {
           contentId: parseInt(contentId)
         },
       });
-  
+
       res.json(newSubscription);
+
+    } catch (e) {
+      res.json([]);
+    }
+
+  } else {
+    // If the user is not registered, refuse the request to subscribe.
+    res.status(403).send("Unauthorized subscribing action detected.")
+  }
+});
+
+app.post('/follow-user', requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  if (!(typeof auth0Id === 'string')) {
+    throw TypeError("Auth0Id is not a valid string.")
+  }
+  const userId = await getUserIdFromAuth0Id(auth0Id);
+  const { followUserId } = req.body;
+  if (!req.body.followUserId) {
+    res.status(400).send("FollowUserId is blank for adding new subscription.");
+  }
+
+  // Only subscribing actions from registered users are allowed.
+  if (userId) {
+    try {
+      const newFollowing = await prisma.userFollowed.create({
+        data: {
+          userId: userId,
+          followedUserId: parseInt(followUserId)
+        },
+      });
+
+      res.json(newFollowing);
+
+    } catch (e) {
+      res.json([]);
+    }
+
+  } else {
+    // If the user is not registered, refuse the request to subscribe.
+    res.status(403).send("Unauthorized subscribing action detected.")
+  }
+});
+
+
+app.delete('/unsubscibe-content', requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  if (!(typeof auth0Id === 'string')) {
+    throw TypeError("Auth0Id is not a valid string.")
+  }
+
+  const userId = await getUserIdFromAuth0Id(auth0Id);
+  const { contentId } = req.body;
+  if (!req.body.contentId) {
+    res.status(400).send("ContentId is blank for adding new subscription.");
+  }
+
+  // Only unsubscribing actions from registered users are allowed.
+  if (userId) {
+    try {
+      const delSubscription = await prisma.userSubscription.delete({
+        where: {
+          userId: userId,
+          contentId: parseInt(contentId)
+        },
+      });
+
+      res.json(delSubscription);
+
+    } catch (e) {
+      res.json([]);
+    }
+
+  } else {
+    // If the user is not registered, refuse the request to subscribe.
+    res.status(403).send("Unauthorized subscribing action detected.")
+  }
+});
+
+
+app.delete('/unfollow-user', requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  if (!(typeof auth0Id === 'string')) {
+    throw TypeError("Auth0Id is not a valid string.")
+  }
+  const userId = await getUserIdFromAuth0Id(auth0Id);
+  const { unfollowUserId } = req.body;
+  if (!req.body.unfollowUserId) {
+    res.status(400).send("FollowUserId is blank for adding new subscription.");
+  }
+
+  // Only subscribing actions from registered users are allowed.
+  if (userId) {
+    try {
+      const delFollowing = await prisma.userFollowed.delete({
+        where: {
+          userId: userId,
+          followedUserId: parseInt(unfollowUserId)
+        },
+      });
+
+      res.json(delFollowing);
 
     } catch (e) {
       res.json([]);
