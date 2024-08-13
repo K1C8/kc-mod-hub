@@ -111,6 +111,9 @@ app.get('/get-content', async (req, res) => {
     }
     // Fetch all Content entries from the database
     const contents = await prisma.content.findUnique({
+      include: {
+        author: true,
+      },
       where: {
         id: parseInt(id),
       },
@@ -134,8 +137,37 @@ app.get('/get-content', async (req, res) => {
 
 // Endpoint to fetch user's subscribed files. This endpoint requires authentication to be called.
 app.get("/get-user-subscription", requireAuth, async (req, res) => {
-  const auth0Id = req.auth.payload.sub;
-  console.log(`${auth0Id}`);
+  try {
+    const auth0Id = req.auth.payload.sub;
+    console.log(`${auth0Id}`);
+    if (!(typeof auth0Id === 'string')) {
+      throw TypeError("Auth0Id is not a valid string.")
+    }
+    const subscribedContents = await prisma.user.findMany({
+      include: {
+        content: true,
+      },
+      where: {
+        userId: parseInt(id),
+      },
+    });
+    console.log(`${subscribedContents}`);
+
+    // Send the fetched data as the response
+    res.status(200).json(subscribedContents);
+
+  } catch (e) {
+    if (error instanceof TypeError) {
+      // TypeError action here
+      console.error('Error fetching content:', error);
+      res.status(400).json({ error: 'Auth0Id is not a valid string.' });
+    } else {
+      // Handle other errors
+      console.error('Error fetching content:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+  }
 
 });
 
@@ -153,6 +185,38 @@ app.post('/upload-mod', modupload.single('file'), (req, res) => {
     file: req.file.filename,
     path: req.file.path
   });
+});
+
+app.post('/subscibe-content', requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  const { userId, contentId } = req.body;
+  if (!req.body.userId || !req.body.contentId) {
+    res.status(401).send("Either userId or contentId is blank for adding new subscription.");
+  }
+  const user = await prisma.user.findUnique({
+    select: {
+      id: true,
+    },
+    where: {
+      auth0Id,
+    },
+  });
+
+  // Only subscribing actions from registered users are allowed.
+  if (user) {
+    const newSubscription = await prisma.userSubscription.create({
+      data: {
+        userId,
+        contentId
+      },
+    });
+
+    res.json(newSubscription);
+    
+  } else {
+    // If the user is not registered, refuse the request to subscribe.
+    res.status(403).send("Unauthorized subscribing action detected.")
+  }
 });
 
 

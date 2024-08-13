@@ -16,10 +16,8 @@ export default function FilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-  const imgPath = `${process.env.REACT_APP_API_URL}/`
-
   useEffect(() => {
+    const imgPath = `${process.env.REACT_APP_API_URL}/`
     const fetchContent = async () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/get-content?id=${fileId}`);
@@ -59,9 +57,9 @@ export default function FilePage() {
               <img src={content.image} alt={content.name} className="w-full h-full object-cover object-center max-h-full" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold pt-8 tracking-tight">{content.name}</h1>
+              <h2 className="text-2xl font-extrabold pt-8 tracking-tight">{content.name}</h2>
+              <h3 className="text-xl font-bold pt-8 tracking-tight">Created by {content.author.nickname}</h3>
               <p className="text-lg font-light pt-8 tracking-tight">{content.desc}</p>
-
             </div>
 
           </div>
