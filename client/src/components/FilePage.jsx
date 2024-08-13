@@ -1,12 +1,14 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from "react";
+import { useAuthToken } from "../AuthTokenContext";
 import Banner from "./Banner"
 import '../style/workshop_o.css'
-import ButtonSubscribe from "./ButtonSubscribe";
+import useSubscription from "../hooks/useSubscription";
 
 export default function FilePage() {
   const { isAuthenticated } = useAuth0();
+  const { accessToken } = useAuthToken();
 
   const location = useLocation();
   const fileId = location.pathname.split('/file/')[1];
@@ -16,6 +18,56 @@ export default function FilePage() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [subscription, setSubscription] = useSubscription();
+
+  async function addSubscription(fileId) {
+    // insert a new subscription item, passing the accessToken in the Authorization header
+    const data = await fetch(`${process.env.REACT_APP_API_URL}/subscibe-content`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        contentId: fileId,
+      }),
+    });
+    if (data.ok) {
+      const subscription = await data.json();
+      return subscription;
+    } else {
+      return null;
+    }
+  }
+
+  function ButtonSubscribe() {
+    const isSubscribed = subscription.find((sub) => parseInt(sub.contentId) === parseInt(fileId));
+    console.log(isSubscribed);
+
+    if (isSubscribed) {
+        return (
+            <button className="px-4 py-2 font-bold text-sm bg-pink-800 text-white rounded-full shadow-sm"
+                >
+                Unsubscribe
+            </button>
+        )
+    } else {
+        return (
+            <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
+                onClick={() => handleSubscribbing()}>
+                Subscribe
+            </button>
+        )
+    }
+  }
+
+  const handleSubscribbing = async () => {
+    ButtonSubscribe();
+    const newSubscription = await addSubscription(fileId);
+    if (newSubscription) {
+      setSubscription([...subscription, newSubscription]);
+    }
+  };
 
   useEffect(() => {
     // const imgPath = `${process.env.REACT_APP_API_URL}/`
@@ -64,14 +116,14 @@ export default function FilePage() {
               <h3 className="text-xl font-bold pt-4 tracking-tight">Uploaded by {content.author.nickname}</h3>
               <p className="text-lg font-light pt-4 tracking-tight"></p>
               {isAuthenticated ? (<button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm">
-                {/* onClick={signUp}> */}
+
                 Follow User
               </button>
               ) : (
                 <p className="text-lg font-semibold tracking-tight">Log in to Follow User</p>
               )}
               <p className="text-lg font-light py-4 tracking-tight">{content.desc}</p>
-              {isAuthenticated ? (ButtonSubscribe(content.id)):(
+              {isAuthenticated ? (ButtonSubscribe()) : (
                 <p className="text-lg font-semibold tracking-tight">Log in to Subscribe Content</p>
               )}
             </div>

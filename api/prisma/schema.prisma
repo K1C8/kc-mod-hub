@@ -44,12 +44,12 @@ model Content {
 }
 
 model UserSubscription {
-  id           Int      @id @default(autoincrement())
   user         User     @relation(fields: [userId], references: [id])
   userId       Int
   content      Content  @relation(fields: [contentId], references: [id])
   contentId    Int     
   subscibeTime DateTime @default(now())
+  @@id([userId, contentId])
 }
 
 model UserFollowed {

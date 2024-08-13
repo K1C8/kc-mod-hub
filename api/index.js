@@ -287,29 +287,31 @@ app.post('/upload-mod', modupload.single('file'), (req, res) => {
 
 app.post('/subscibe-content', requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
+  if (!(typeof auth0Id === 'string')) {
+    throw TypeError("Auth0Id is not a valid string.")
+  }
+
+  const userId = await getUserIdFromAuth0Id(auth0Id);
   const { contentId } = req.body;
   if (!req.body.contentId) {
     res.status(400).send("ContentId is blank for adding new subscription.");
   }
-  const user = await prisma.user.findUnique({
-    select: {
-      id: true,
-    },
-    where: {
-      auth0Id,
-    },
-  });
 
   // Only subscribing actions from registered users are allowed.
-  if (user) {
-    const newSubscription = await prisma.userSubscription.create({
-      data: {
-        userId: user,
-        contentId
-      },
-    });
+  if (userId) {
+    try {
+      const newSubscription = await prisma.userSubscription.create({
+        data: {
+          userId: userId,
+          contentId: parseInt(contentId)
+        },
+      });
+  
+      res.json(newSubscription);
 
-    res.json(newSubscription);
+    } catch (e) {
+      res.json([]);
+    }
 
   } else {
     // If the user is not registered, refuse the request to subscribe.
