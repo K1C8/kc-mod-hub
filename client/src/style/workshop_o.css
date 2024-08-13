@@ -587,6 +587,10 @@ video {
   display: grid;
 }
 
+.contents {
+  display: contents;
+}
+
 .size-24 {
   width: 6rem;
   height: 6rem;

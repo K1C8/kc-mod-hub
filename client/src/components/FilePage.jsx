@@ -1,4 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { useParams } from 'react-router-dom';
 import Banner from "./Banner"
 import '../style/workshop_o.css'
 

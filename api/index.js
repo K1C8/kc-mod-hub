@@ -5,6 +5,8 @@ import pkg from "@prisma/client";
 import morgan from "morgan";
 import cors from "cors";
 import { auth } from "express-oauth2-jwt-bearer";
+import modupload from "./modupload.mjs";
+import path from "path";
 
 // this is a middleware that will validate the access token sent by the client
 const requireAuth = auth({
@@ -61,7 +63,7 @@ app.post("/verify-user", requireAuth, async (req, res) => {
   }
 });
 
-app.get('/get-files', async (req, res) => {
+app.get('/get-contents', async (req, res) => {
   try {
     // Fetch all Content entries from the database
     const contents = await prisma.content.findMany({
@@ -92,6 +94,34 @@ app.get("/get-user-subscription", requireAuth, async(req, res) => {
   const auth0Id = req.auth.payload.sub;
   
 });
+
+
+// Use ModUpload middleware for handling mod uploads
+app.post('/upload-mod', modupload.single('file'), (req, res) => {
+  console.log(req.file.filename);
+  if (!req.file) {
+    console.log("Bad request received.");
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  // Respond with file details
+  res.status(200).json({
+    file: req.file.filename,
+    path: req.file.path
+  });
+});
+
+
+// const imgDirPath = "./"
+// const modDirPath = "./"
+
+// Serve static files from the 'img_uploads' directory
+app.use('/img_uploads', express.static('img_uploads'));
+
+// Serve static files from the 'img_uploads' directory
+app.use('/mod_uploads', express.static('mod_uploads'));
+
+
 
 app.listen(8000, () => {
   console.log("Server running on http://localhost:8000 🎉 🚀");
