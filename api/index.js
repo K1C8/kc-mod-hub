@@ -89,10 +89,41 @@ app.get('/get-contents', async (req, res) => {
   }
 });
 
+app.get('/get-content', async (req, res) => {
+  try {
+    const id = req.query.id;
+    console.log(`${req}`);
+    console.log(`ID received is ${id}`);
+    if (id <= 0 || !(!isNaN(parseFloat(id)) && !isNaN(id - 0))) {
+      throw TypeError("ID is not a valid number.")
+    }
+    // Fetch all Content entries from the database
+    const contents = await prisma.content.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    // Send the fetched data as the response
+    res.status(200).json(contents);
+  } catch (error) {
+    if (error instanceof TypeError) {
+      // TypeError action here
+      console.error('Error fetching content:', error);
+      res.status(400).json({ error: 'ID is not a valid number.' });
+    } else {
+      // Handle other errors
+      console.error('Error fetching content:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+  }
+});
+
 // Endpoint to fetch user's subscribed files. This endpoint requires authentication to be called.
-app.get("/get-user-subscription", requireAuth, async(req, res) => {
+app.get("/get-user-subscription", requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
-  
+
 });
 
 

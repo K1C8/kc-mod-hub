@@ -30,9 +30,12 @@ model Content {
   name         String   @db.VarChar(1023)
   author       User     @relation(fields: [authorId], references: [id])
   authorId     Int      
-  file         String   @db.VarChar(1023)
+  file         String?  @db.VarChar(1023)
   image        String?  @db.Text 
   video        String?  @db.Text
+  fileInd      String?  @db.VarChar(16)
+  imageInd     String?  @db.VarChar(16)
+  videoInd     String?  @db.VarChar(16)
   uploadTime   DateTime @default(now())
   lastUpdateTime DateTime @updatedAt
   desc         String?  @db.Text

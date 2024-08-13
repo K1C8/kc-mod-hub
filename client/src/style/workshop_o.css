@@ -620,6 +620,10 @@ video {
   height: max-content;
 }
 
+.h-96 {
+  height: 24rem;
+}
+
 .max-h-20 {
   max-height: 5rem;
 }
@@ -684,6 +688,10 @@ video {
   width: 16rem;
 }
 
+.w-4\/5 {
+  width: 80%;
+}
+
 .grid-flow-row-dense {
   grid-auto-flow: row dense;
 }
@@ -704,12 +712,20 @@ video {
   place-content: space-evenly;
 }
 
+.justify-center {
+  justify-content: center;
+}
+
 .gap-3 {
   gap: 0.75rem;
 }
 
 .gap-2 {
   gap: 0.5rem;
+}
+
+.justify-self-center {
+  justify-self: center;
 }
 
 .overflow-hidden {
@@ -878,6 +894,11 @@ video {
 
 .text-xl {
   font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
   line-height: 1.75rem;
 }
 
