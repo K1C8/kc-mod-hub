@@ -10,9 +10,9 @@ export default function ItemList () {
 
   return (
     <div className="grid grid-cols-3 gap-3 px-4 pb-4">
-      <p className='text-xl font-bold col-span-3'>Most Recent Files</p>
+      <h2 className='text-xl font-bold col-span-3'>Most Recent Files</h2>
       {contents.map((content) => (
-        <a key={content.id} href={"/file/:" + String(content.id)} target="_blank" rel="noopener noreferrer">
+        <a key={content.id} href={"/file/" + String(content.id)} target="_blank" rel="noopener noreferrer">
           <div className="content-item bg-gray-50 rounded-xl ring-1 ring-slate-300 p-3">
             <div className="w-full h-64 max-h-80 overflow-hidden ring-1 ring-slate-300 rounded-lg">
               <img src={content.image} alt={content.name} className="w-full h-full object-cover object-center max-h-full" />

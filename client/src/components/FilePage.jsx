@@ -1,5 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import Banner from "./Banner"
 import '../style/workshop_o.css'
@@ -7,7 +7,10 @@ import '../style/workshop_o.css'
 export default function FilePage() {
   // const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
 
-  const { fileId } = useParams(); // Access the file ID from the URL
+  const location = useLocation();
+  const fileId = location.pathname.split('/file/')[1];
+
+  // const { fileId } = useParams(); // Access the file ID from the URL
 
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +61,7 @@ export default function FilePage() {
             <div>
               <h1 className="text-2xl font-extrabold pt-8 tracking-tight">{content.name}</h1>
               <p className="text-lg font-light pt-8 tracking-tight">{content.desc}</p>
-              
+
             </div>
 
           </div>

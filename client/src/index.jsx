@@ -44,7 +44,7 @@ root.render(
             <Route path="/" element={<Home />} />
             <Route path="/verify-user" element={<VerifyUser />} />
             <Route path="/auth-debug" element={<AuthDebug />} />
-            <Route path="/file/:fileId" element={<FilePage />} />
+            <Route path="/file/*" element={<FilePage />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </BrowserRouter>

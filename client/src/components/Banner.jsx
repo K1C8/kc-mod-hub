@@ -26,7 +26,7 @@ export default function Banner() {
                     </li>
                     <li className="nav-menu-item">
                         <button
-                            className="px-4 py-2 font-bold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
+                            className="px-4 py-2 font-bold text-sm bg-cyan-800 text-white rounded-full shadow-sm"
                             onClick={() => logout({ returnTo: window.location.origin })}
                         >
                             Log Out
@@ -41,13 +41,13 @@ export default function Banner() {
                     </li>
 
                     <li className="nav-menu-item">
-                        <button className="px-4 py-2 font-bold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
+                        <button className="px-4 py-2 font-bold text-sm bg-cyan-800 text-white rounded-full shadow-sm"
                             onClick={loginWithRedirect}>
                             Login
                         </button>
                     </li>
                     <li className="nav-menu-item">
-                        <button className="px-4 py-2 font-bold text-sm bg-blue-400 text-white rounded-full shadow-sm"
+                        <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
                             onClick={signUp}>
                             Create Account
                         </button>
