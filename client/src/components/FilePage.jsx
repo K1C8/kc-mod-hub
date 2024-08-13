@@ -71,7 +71,7 @@ export default function FilePage() {
                 <p className="text-lg font-semibold tracking-tight">Log in to Follow User</p>
               )}
               <p className="text-lg font-light py-4 tracking-tight">{content.desc}</p>
-              {isAuthenticated ? (<ButtonSubscribe />):(
+              {isAuthenticated ? (ButtonSubscribe(content.id)):(
                 <p className="text-lg font-semibold tracking-tight">Log in to Subscribe Content</p>
               )}
             </div>
