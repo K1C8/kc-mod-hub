@@ -1,5 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { useParams, useLocation, useRevalidator } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import { useAuthToken } from "../AuthTokenContext";
 import Banner from "./Banner"
@@ -75,8 +75,8 @@ export default function FilePage() {
       }),
     });
     if (data.ok) {
-      const subscription = await data.json();
-      return subscription;
+      const followed = await data.json();
+      return followed;
     } else {
       return null;
     }
@@ -95,8 +95,8 @@ export default function FilePage() {
       }),
     });
     if (data.ok) {
-      const subscription = await data.json();
-      return subscription;
+      const unfollowed = await data.json();
+      return unfollowed;
     } else {
       return null;
     }
@@ -104,24 +104,63 @@ export default function FilePage() {
 
   function ButtonSubscribe() {
     const isSubscribed = subscription.find((sub) => parseInt(sub.contentId) === parseInt(fileId));
+    console.log("Button Subscribe at (re)rendering: Subscribed file list: " + String(subscription.length))
     console.log(isSubscribed);
 
     if (isSubscribed) {
-        return (
-            <button className="px-4 py-2 font-bold text-sm bg-pink-800 text-white rounded-full shadow-sm"
-                onClick={() => handleUnsubscribbing()}>
-                Unsubscribe
-            </button>
-        )
+      return (
+        <button className="px-4 py-2 font-bold text-sm bg-pink-800 text-white rounded-full shadow-sm"
+          onClick={() => handleUnsubscribbing()}>
+          Unsubscribe
+        </button>
+      )
     } else {
-        return (
-            <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
-                onClick={() => handleSubscribbing()}>
-                Subscribe
-            </button>
-        )
+      return (
+        <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
+          onClick={() => handleSubscribbing()}>
+          Subscribe
+        </button>
+      )
     }
   }
+
+
+  const handleSubscribbing = async () => {
+    const newSubscription = await addSubscription(fileId);
+    if (newSubscription) {
+      setSubscription([...subscription, newSubscription]);
+    }
+
+    console.log(subscription)
+  };
+
+  const handleUnsubscribbing = async () => {
+    const subscriptionToDel = await delSubscription(parseInt(fileId));
+    if (subscriptionToDel) {
+      setSubscription((prevSubscriptions) =>
+        prevSubscriptions.filter((sub) => sub.contentId !== fileId)
+      );
+    }
+  };
+
+  const handleFollowing = async () => {
+    const newFollowed = await addFollow(parseInt(content.author.id));
+    if (newFollowed) {
+      setFollowed([...followed, newFollowed]);
+    }
+
+  };
+
+  const handleUnfollowing = async () => {
+    const followedToDel = await delFollow(parseInt(content.author.id));
+    if (followedToDel) {
+      {
+        setFollowed((prevFollowed) =>
+          prevFollowed.filter((fo) => fo.followedUserId !== content.author.id)
+        );
+      }
+    }
+  };
 
   function ButtonFollow() {
     // const isFollowed = () => {
@@ -132,64 +171,25 @@ export default function FilePage() {
     //   return false;
     // };
     const isFollowed = followed.find((fo) => parseInt(fo.followedUserId) === parseInt(content.author.id));
-    console.log("Followed user list: " + String(isFollowed))
+    console.log("Button Follow at (re)rendering: Followed user list: " + String(followed.length))
     console.log(isFollowed);
 
     if (isFollowed) {
-        return (
-            <button className="px-4 py-2 font-bold text-sm bg-pink-800 text-white rounded-full shadow-sm"
-                onClick={() => handleUnfollowing()}>
-                Unfollow
-            </button>
-        )
+      return (
+        <button className="px-4 py-2 font-bold text-sm bg-pink-800 text-white rounded-full shadow-sm"
+          onClick={() => handleUnfollowing()}>
+          Unfollow
+        </button>
+      )
     } else {
-        return (
-            <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
-                onClick={() => handleFollowing()}>
-                Follow
-            </button>
-        )
+      return (
+        <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
+          onClick={() => handleFollowing()}>
+          Follow
+        </button>
+      )
     }
   }
-
-  const handleSubscribbing = async () => {
-    const newSubscription = await addSubscription(fileId);
-    if (newSubscription) {
-      setSubscription([...subscription, newSubscription]);
-    }
-  };
-
-  const handleUnsubscribbing = async () => {
-    const subscriptionToDel = await delSubscription(parseInt(content.author.id));
-    if (subscriptionToDel) {
-      let subscriptionCopy = [...subscription];
-      let delIndex = subscriptionCopy.indexOf(subscriptionToDel);
-      if (delIndex > -1) {
-        subscriptionCopy.splice(delIndex, 1);
-      }
-      setSubscription([...subscriptionCopy]);
-    }
-  };
-
-  const handleFollowing = async () => {
-    console.log(content.author.id)
-    const newFollowed = await addFollow(parseInt(content.author.id));
-    if (newFollowed) {
-      setSubscription([...followed, newFollowed]);
-    }
-  };
-
-  const handleUnfollowing = async () => {
-    const followedToDel = await delFollow(parseInt(content.author.id));
-    if (followedToDel) {
-      let followedCopy = [...followed];
-      let delIndex = followedCopy.indexOf(followedToDel);
-      if (delIndex > -1) {
-        followedCopy.splice(delIndex, 1);
-      }
-      setSubscription([...followedCopy]);
-    }
-  };
 
   useEffect(() => {
     // const imgPath = `${process.env.REACT_APP_API_URL}/`

@@ -7,7 +7,7 @@ export default function useSubscription() {
 
     // AuthToken will be checked at the back-end during unsubscribbing content. 
     useEffect(() => {
-        async function subscribbing() {
+        async function subscribing() {
             const data = await fetch(`${process.env.REACT_APP_API_URL}/get-user-subscription`, {
                 method: "GET",
                 headers: {
@@ -17,9 +17,11 @@ export default function useSubscription() {
             });
             const result = await data.json();
             setSubscription(result);
+            console.log("From useSubscription.js, subscriptions are :");
+            console.log(subscription);
         }
 
-        subscribbing();
+        subscribing();
     }, [accessToken]);
 
 
