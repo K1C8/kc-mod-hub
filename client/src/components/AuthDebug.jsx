@@ -10,9 +10,9 @@ export default function AuthDebug() {
     <div className="bg-sky-100">
       <Banner />
       <div className="p-10">
-        {/* <button className="btn-primary" onClick={loginWithRedirect}>
+        <button className="btn-primary" onClick={loginWithRedirect}>
           Login
-        </button> */}
+        </button>
         <p>Loading: {String(isLoading)} </p>
         <p>User Authenticated: {String(isAuthenticated)}</p>
         <div className="py-4">

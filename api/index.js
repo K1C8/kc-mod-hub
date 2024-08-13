@@ -71,7 +71,9 @@ app.get('/get-contents', async (req, res) => {
         id: true,
         name: true,
         file: true,
+        fileInd: true,
         image: true,
+        imageInd: true,
         lastUpdateTime: true,
         desc: true,
       },
@@ -79,6 +81,16 @@ app.get('/get-contents', async (req, res) => {
         lastUpdateTime: 'desc',
       },
     });
+
+    const imgPath = `${process.env.REACT_APP_API_URL}/`
+
+    for (var i = 0; i < contents.length; i++) {
+      if (contents[i].imageInd === "Internal") {
+        contents[i].image = imgPath + contents[i].image;
+      } else if (contents[i].imageInd === "External") {
+
+      }
+    }
 
     // Send the fetched data as the response
     res.status(200).json(contents);
@@ -123,6 +135,7 @@ app.get('/get-content', async (req, res) => {
 // Endpoint to fetch user's subscribed files. This endpoint requires authentication to be called.
 app.get("/get-user-subscription", requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
+  console.log(`${auth0Id}`);
 
 });
 

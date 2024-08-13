@@ -22,19 +22,14 @@ export default function Banner() {
                         <div>Welcome, {user.nickname} </div>
                     </li>
                     <li className="nav-menu-item">
+                        <Link to="/auth-debug">Auth Debugger</Link>
+                    </li>
+                    <li className="nav-menu-item">
                         <button
                             className="px-4 py-2 font-bold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
                             onClick={() => logout({ returnTo: window.location.origin })}
                         >
                             Log Out
-                        </button>
-                    </li>
-                    <li className="nav-menu-item">
-                        <button
-                            className="px-4 py-2 font-bold text-sm bg-cyan-500 text-white rounded-full shadow-sm"
-                            onClick={AuthDebug}
-                        >
-                            Auth Debugger
                         </button>
                     </li>
 

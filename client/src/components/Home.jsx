@@ -3,7 +3,7 @@ import Banner from "./Banner"
 import ItemList from "./ItemList";
 import '../style/workshop_o.css'
 import SideBar from "./SideBar";
-import FollowingItemList from "./FollowingItemList";
+import FollowedItemList from "./FollowedItemList";
 
 export default function Home() {
   const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
@@ -17,7 +17,7 @@ export default function Home() {
       <div className="flex py-10">
         <div className="grid grid-rows-3 gap-3 w-3/4 px-4">
           <ItemList />
-          {isAuthenticated && <FollowingItemList />}
+          {isAuthenticated && <FollowedItemList />}
         </div>
         <SideBar />
       </div>

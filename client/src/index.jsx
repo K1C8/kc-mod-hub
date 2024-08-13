@@ -9,6 +9,7 @@ import { AuthTokenProvider } from "./AuthTokenContext";
 import { requestedScopes } from "./constants";
 import "./style/workshop_o.css"
 import FilePage from "./components/FilePage";
+import Profile from "./components/Profile";
 
 const container = document.getElementById("root");
 
@@ -44,6 +45,7 @@ root.render(
             <Route path="/verify-user" element={<VerifyUser />} />
             <Route path="/auth-debug" element={<AuthDebug />} />
             <Route path="/file/:fileId" element={<FilePage />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </BrowserRouter>
       </AuthTokenProvider>
