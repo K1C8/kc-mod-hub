@@ -19,6 +19,7 @@ model User {
   auth0Id      String   @unique @default("")
   name         String?  @db.VarChar(511)
   nickname     String?  @db.VarChar(511)
+  image        String?  @db.VarChar(2048)
   subscription UserSubscription[]
   content      Content[]
   following    UserFollowed[] @relation("Following")

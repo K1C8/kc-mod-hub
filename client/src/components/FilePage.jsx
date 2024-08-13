@@ -58,7 +58,7 @@ export default function FilePage() {
             <div>
               <h1 className="text-2xl font-extrabold pt-8 tracking-tight">{content.name}</h1>
               <p className="text-lg font-light pt-8 tracking-tight">{content.desc}</p>
-
+              
             </div>
 
           </div>
