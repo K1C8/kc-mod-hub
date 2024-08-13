@@ -62,8 +62,8 @@ export default function FilePage() {
     }
   }
 
-  async function addFollow(fileId) {
-    // insert a new subscription item, passing the accessToken in the Authorization header
+  async function addFollow(followUserId) {
+    // insert a new followed user, passing the accessToken in the Authorization header
     const data = await fetch(`${process.env.REACT_APP_API_URL}/follow-user`, {
       method: "POST",
       headers: {
@@ -71,7 +71,27 @@ export default function FilePage() {
         Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
-        followUserId: fileId,
+        followUserId: followUserId,
+      }),
+    });
+    if (data.ok) {
+      const subscription = await data.json();
+      return subscription;
+    } else {
+      return null;
+    }
+  }
+
+  async function delFollow(unfollowUserId) {
+    // Unfollow a user, passing the accessToken in the Authorization header
+    const data = await fetch(`${process.env.REACT_APP_API_URL}/unfollow-user`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        unfollowUserId: unfollowUserId,
       }),
     });
     if (data.ok) {
@@ -104,13 +124,15 @@ export default function FilePage() {
   }
 
   function ButtonFollow() {
-    const isFollowed = () => {
-      for (let i = 0; i < followed.length(); i++) {
-        if (followed[i] === 1)
-          return true;
-      }
-      return false;
-    };
+    // const isFollowed = () => {
+    //   for (let i = 0; i < followed.length; i++) {
+    //     if (followed[i] === 1)
+    //       return true;
+    //   }
+    //   return false;
+    // };
+    const isFollowed = followed.find((fo) => parseInt(fo.followedUserId) === parseInt(content.author.id));
+    console.log("Followed user list: " + String(isFollowed))
     console.log(isFollowed);
 
     if (isFollowed) {
@@ -138,7 +160,7 @@ export default function FilePage() {
   };
 
   const handleUnsubscribbing = async () => {
-    const subscriptionToDel = await delSubscription(fileId);
+    const subscriptionToDel = await delSubscription(parseInt(content.author.id));
     if (subscriptionToDel) {
       let subscriptionCopy = [...subscription];
       let delIndex = subscriptionCopy.indexOf(subscriptionToDel);
@@ -150,14 +172,15 @@ export default function FilePage() {
   };
 
   const handleFollowing = async () => {
-    const newFollowed = await addFollow(fileId);
+    console.log(content.author.id)
+    const newFollowed = await addFollow(parseInt(content.author.id));
     if (newFollowed) {
       setSubscription([...followed, newFollowed]);
     }
   };
 
   const handleUnfollowing = async () => {
-    const followedToDel = await delFollow(fileId);
+    const followedToDel = await delFollow(parseInt(content.author.id));
     if (followedToDel) {
       let followedCopy = [...followed];
       let delIndex = followedCopy.indexOf(followedToDel);

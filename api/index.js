@@ -182,7 +182,7 @@ app.get("/get-user-subscription", requireAuth, async (req, res) => {
         userId: parseInt(id),
       },
     });
-    console.log(`${subscribedContents}`);
+    console.log(`Subscriptions of user id ${id} ar ${subscribedContents}`);
 
     // Send the fetched data as the response
     res.status(200).json(subscribedContents);
@@ -216,16 +216,13 @@ app.get("/get-followed-user", requireAuth, async (req, res) => {
     if (userId <= 0 || !(!isNaN(parseFloat(userId)) && !isNaN(userId - 0))) {
       throw TypeError("User id is not a valid number.")
     }
-    const followedUserIdArray = await prisma.userFollowed.findMany({
-      select: {
-        followedUserId: true,
-      },
+    const followedUserId = await prisma.userFollowed.findMany({
       where: {
         userId: parseInt(userId),
       },
     });
-    const followedUserId = followedUserIdArray.map(fo => fo.followedUserId);
 
+    console.log(`Followed users of user ${userId} are ${followedUserId}`)
     // Send the fetched data as the response
     res.status(200).json(followedUserId);
 
@@ -350,10 +347,10 @@ app.post('/subscibe-content', requireAuth, async (req, res) => {
         },
       });
 
-      res.json(newSubscription);
+      res.status(200).json(newSubscription);
 
     } catch (e) {
-      res.json([]);
+      res.status(200).json([]);
     }
 
   } else {
@@ -383,10 +380,10 @@ app.post('/follow-user', requireAuth, async (req, res) => {
         },
       });
 
-      res.json(newFollowing);
+      res.status(200).json(newFollowing);
 
     } catch (e) {
-      res.json([]);
+      res.status(200).json([]);
     }
 
   } else {
@@ -410,18 +407,22 @@ app.delete('/unsubscibe-content', requireAuth, async (req, res) => {
 
   // Only unsubscribing actions from registered users are allowed.
   if (userId) {
+    console.log(`User id ${parseInt(userId)} is going to unsubscribe ${parseInt(contentId)}.`)
     try {
       const delSubscription = await prisma.userSubscription.delete({
         where: {
-          userId: userId,
-          contentId: parseInt(contentId)
-        },
+          userId_contentId: { // This is how you refer to composite keys in Prisma
+            userId: parseInt(userId),
+            contentId: parseInt(contentId)
+          }
+        }
       });
 
-      res.json(delSubscription);
+      res.status(200).json(delSubscription);
 
     } catch (e) {
-      res.json([]);
+      res.status(400).send("Bad request. Please check input values")
+      console.log(String(e))
     }
 
   } else {
@@ -444,18 +445,20 @@ app.delete('/unfollow-user', requireAuth, async (req, res) => {
 
   // Only subscribing actions from registered users are allowed.
   if (userId) {
+    console.log(`User id ${userId} is going to unfollow ${unfollowUserId}.`)
     try {
-      const delFollowing = await prisma.userFollowed.delete({
+      let delFollowing = await prisma.userFollowed.delete({
         where: {
-          userId: userId,
-          followedUserId: parseInt(unfollowUserId)
+          userId_followedUserId: {
+            userId: parseInt(userId),
+            followedUserId: parseInt(unfollowUserId)
+          }
         },
       });
-
-      res.json(delFollowing);
-
+      // delFollowing = await delFollowing.json();
+      res.status(200).json(delFollowing);
     } catch (e) {
-      res.json([]);
+      res.status(400).send("Bad request. Please check input values")
     }
 
   } else {
