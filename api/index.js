@@ -25,6 +25,15 @@ app.use(morgan("dev"));
 const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
+async function getUserIdFromAuth0Id(auth0Id) {
+  const user =  await prisma.user.findUnique({
+    where: {
+      auth0Id,
+    },
+  });
+  return user.id;
+}
+
 // this is a public endpoint because it doesn't have the requireAuth middleware
 app.get("/ping", (req, res) => {
   res.send("pong");
@@ -35,13 +44,18 @@ app.get("/ping", (req, res) => {
 // if the user is already registered we will return the user information
 app.post("/verify-user", requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
-  console.log(req.auth.payload)
+
+  // console.log(req.auth.payload)
   // we are using the audience to get the email and name from the token
   // if your audience is different you should change the key to match your audience
   // the value should match your audience according to this document: https://docs.google.com/document/d/1lYmaGZAS51aeCxfPzCwZHIk6C5mmOJJ7yHBNPJuGimU/edit#heading=h.fr3s9fjui5yn
   const email = req.auth.payload[`${process.env.AUTH0_AUDIENCE}/email`];
   const name = req.auth.payload[`${process.env.AUTH0_AUDIENCE}/name`];
+  const nickname = req.auth.payload[`${process.env.AUTH0_AUDIENCE}/nickname`];
+  const picture = req.auth.payload[`${process.env.AUTH0_AUDIENCE}/picture`];
 
+  // console.log(nickname);
+  // console.log(picture);
   const user = await prisma.user.findUnique({
     where: {
       auth0Id,
@@ -49,6 +63,15 @@ app.post("/verify-user", requireAuth, async (req, res) => {
   });
 
   if (user) {
+    const user = await prisma.user.update({
+      where: {
+        auth0Id,
+      },
+      data: {
+        nickname: nickname,
+        image: picture,
+      }
+    })
     res.json(user);
   } else {
     const newUser = await prisma.user.create({
@@ -119,6 +142,12 @@ app.get('/get-content', async (req, res) => {
       },
     });
 
+    const imgPath = `${process.env.REACT_APP_API_URL}/`
+    if (contents.imageInd === "Internal") {
+      contents.image = imgPath + contents.image;
+    }
+    contents.author.auth0Id = null;
+    console.log(`${contents}`)
     // Send the fetched data as the response
     res.status(200).json(contents);
   } catch (error) {
@@ -143,7 +172,9 @@ app.get("/get-user-subscription", requireAuth, async (req, res) => {
     if (!(typeof auth0Id === 'string')) {
       throw TypeError("Auth0Id is not a valid string.")
     }
-    const subscribedContents = await prisma.user.findMany({
+    const id = await getUserIdFromAuth0Id(auth0Id);
+    console.log(`User id checked from auth0 is ${id}`);
+    const subscribedContents = await prisma.userSubscription.findMany({
       include: {
         content: true,
       },
@@ -157,13 +188,80 @@ app.get("/get-user-subscription", requireAuth, async (req, res) => {
     res.status(200).json(subscribedContents);
 
   } catch (e) {
-    if (error instanceof TypeError) {
+    if (e instanceof TypeError) {
       // TypeError action here
-      console.error('Error fetching content:', error);
+      console.error('Error fetching content:', e);
       res.status(400).json({ error: 'Auth0Id is not a valid string.' });
     } else {
       // Handle other errors
-      console.error('Error fetching content:', error);
+      console.error('Error fetching content:', e);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+  }
+
+});
+
+
+// Endpoint to fetch user's subscribed files. This endpoint requires authentication to be called.
+app.get("/get-followed-contents", requireAuth, async (req, res) => {
+  try {
+    const auth0Id = req.auth.payload.sub;
+    console.log(`${auth0Id}`);
+    if (!(typeof auth0Id === 'string')) {
+      throw TypeError("Auth0Id is not a valid string.")
+    }
+
+    const userId = await getUserIdFromAuth0Id(auth0Id);
+    console.log(`User id checked from auth0 is ${userId}`);
+    if (userId <= 0 || !(!isNaN(parseFloat(userId)) && !isNaN(userId - 0))) {
+      throw TypeError("User id is not a valid number.")
+    }
+    const followedUserIdArray = await prisma.userFollowed.findMany({
+      select: {
+        followedUserId: true,
+      },
+      where: {
+        userId: parseInt(userId),
+      },
+    });
+    const followedUserId = followedUserIdArray.map(item => item.followedUserId);
+    if (followedUserId == null || followedUserId == '' || followedUserId == []) {
+      console.log(`User id ${userId} is following nobody.`);
+      res.status(200).json([]);
+    } else {
+      console.log(`Followed users of user id ${userId} are: ${followedUserId}`);
+      const followedUsersContents = await prisma.content.findMany({
+        where: {
+          authorId: {
+            in: followedUserId
+          },
+        },
+      });
+
+
+      const imgPath = `${process.env.REACT_APP_API_URL}/`
+
+      for (var i = 0; i < followedUsersContents.length; i++) {
+        if (followedUsersContents[i].imageInd === "Internal") {
+          followedUsersContents[i].image = imgPath + followedUsersContents[i].image;
+        } else if (followedUsersContents[i].imageInd === "External") {
+
+        }
+      }
+
+      // Send the fetched data as the response
+      res.status(200).json(followedUsersContents);
+    }
+
+  } catch (e) {
+    if (e instanceof TypeError) {
+      // TypeError action here
+      console.error('Error fetching content:', e);
+      res.status(400).json({ error: 'Auth0Id is not a valid string.' });
+    } else {
+      // Handle other errors
+      console.error('Error fetching content:', e);
       res.status(500).json({ error: 'Internal Server Error' });
     }
 
@@ -189,9 +287,9 @@ app.post('/upload-mod', modupload.single('file'), (req, res) => {
 
 app.post('/subscibe-content', requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
-  const { userId, contentId } = req.body;
-  if (!req.body.userId || !req.body.contentId) {
-    res.status(401).send("Either userId or contentId is blank for adding new subscription.");
+  const { contentId } = req.body;
+  if (!req.body.contentId) {
+    res.status(400).send("ContentId is blank for adding new subscription.");
   }
   const user = await prisma.user.findUnique({
     select: {
@@ -206,13 +304,13 @@ app.post('/subscibe-content', requireAuth, async (req, res) => {
   if (user) {
     const newSubscription = await prisma.userSubscription.create({
       data: {
-        userId,
+        userId: user,
         contentId
       },
     });
 
     res.json(newSubscription);
-    
+
   } else {
     // If the user is not registered, refuse the request to subscribe.
     res.status(403).send("Unauthorized subscribing action detected.")

@@ -3,9 +3,10 @@ import { useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import Banner from "./Banner"
 import '../style/workshop_o.css'
+import ButtonSubscribe from "./ButtonSubscribe";
 
 export default function FilePage() {
-  // const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
+  const { isAuthenticated } = useAuth0();
 
   const location = useLocation();
   const fileId = location.pathname.split('/file/')[1];
@@ -17,7 +18,7 @@ export default function FilePage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const imgPath = `${process.env.REACT_APP_API_URL}/`
+    // const imgPath = `${process.env.REACT_APP_API_URL}/`
     const fetchContent = async () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/get-content?id=${fileId}`);
@@ -25,11 +26,11 @@ export default function FilePage() {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
-        if (data.imageInd === "Internal") {
-          data.image = imgPath + data.image;
-        } else if (data.imageInd === "External") {
+        // if (data.imageInd === "Internal") {
+        //   data.image = imgPath + data.image;
+        // } else if (data.imageInd === "External") {
 
-        }
+        // }
         setContent(data);
       } catch (err) {
         setError(err.message);
@@ -40,6 +41,8 @@ export default function FilePage() {
 
     fetchContent();
   }, [fileId]);
+
+
 
   if (loading) return <p>Loading content...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -57,9 +60,20 @@ export default function FilePage() {
               <img src={content.image} alt={content.name} className="w-full h-full object-cover object-center max-h-full" />
             </div>
             <div>
-              <h2 className="text-2xl font-extrabold pt-8 tracking-tight">{content.name}</h2>
-              <h3 className="text-xl font-bold pt-8 tracking-tight">Created by {content.author.nickname}</h3>
-              <p className="text-lg font-light pt-8 tracking-tight">{content.desc}</p>
+              <h2 className="text-2xl font-extrabold pt-4 tracking-tight">{content.name}</h2>
+              <h3 className="text-xl font-bold pt-4 tracking-tight">Uploaded by {content.author.nickname}</h3>
+              <p className="text-lg font-light pt-4 tracking-tight"></p>
+              {isAuthenticated ? (<button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm">
+                {/* onClick={signUp}> */}
+                Follow User
+              </button>
+              ) : (
+                <p className="text-lg font-semibold tracking-tight">Log in to Follow User</p>
+              )}
+              <p className="text-lg font-light py-4 tracking-tight">{content.desc}</p>
+              {isAuthenticated ? (<ButtonSubscribe />):(
+                <p className="text-lg font-semibold tracking-tight">Log in to Subscribe Content</p>
+              )}
             </div>
 
           </div>
