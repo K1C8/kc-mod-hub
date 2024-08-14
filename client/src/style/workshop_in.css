@@ -3,3 +3,8 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap')
+
+input:focus ~ label,
+input:not(:placeholder-shown) ~ label {
+  @apply transform -translate-y-4 scale-75 top-2;
+}

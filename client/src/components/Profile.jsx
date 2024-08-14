@@ -4,6 +4,7 @@ import Banner from "./Banner"
 import ItemList from "./ItemList";
 import '../style/workshop_o.css'
 import FollowedItemList from "./FollowedItemList";
+import SubscribedItemList from "./SubscribedItemList"
 
 export default function Profile() {
   const { user, loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
@@ -17,7 +18,7 @@ export default function Profile() {
           
           <div className="px-4">
             <h1 className="text-2xl font-extrabold py-8 tracking-tight">Your profile at Modding Hub</h1>
-            <h2 className="text-xl font-bold py-4 tracking-tight">Files you subscribed</h2>
+            <SubscribedItemList />
             <FollowedItemList />
 
           </div>

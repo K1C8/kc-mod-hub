@@ -102,31 +102,9 @@ export default function FilePage() {
     }
   }
 
-  function ButtonSubscribe() {
-    const isSubscribed = subscription.find((sub) => parseInt(sub.contentId) === parseInt(fileId));
-    console.log("Button Subscribe at (re)rendering: Subscribed file list: " + String(subscription.length))
-    console.log(isSubscribed);
-
-    if (isSubscribed) {
-      return (
-        <button className="px-4 py-2 font-bold text-sm bg-pink-800 text-white rounded-full shadow-sm"
-          onClick={() => handleUnsubscribbing()}>
-          Unsubscribe
-        </button>
-      )
-    } else {
-      return (
-        <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
-          onClick={() => handleSubscribbing()}>
-          Subscribe
-        </button>
-      )
-    }
-  }
-
 
   const handleSubscribbing = async () => {
-    const newSubscription = await addSubscription(fileId);
+    const newSubscription = await addSubscription(parseInt(fileId));
     if (newSubscription) {
       setSubscription([...subscription, newSubscription]);
     }
@@ -171,8 +149,8 @@ export default function FilePage() {
     //   return false;
     // };
     const isFollowed = followed.find((fo) => parseInt(fo.followedUserId) === parseInt(content.author.id));
-    console.log("Button Follow at (re)rendering: Followed user list: " + String(followed.length))
-    console.log(isFollowed);
+    // console.log("Button Follow at (re)rendering: Followed user list: " + String(followed.length))
+    // console.log(isFollowed);
 
     if (isFollowed) {
       return (
@@ -186,6 +164,30 @@ export default function FilePage() {
         <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
           onClick={() => handleFollowing()}>
           Follow
+        </button>
+      )
+    }
+  }
+
+
+
+  function ButtonSubscribe() {
+    const isSubscribed = subscription.find((sub) => parseInt(sub.contentId) === parseInt(fileId));
+    // console.log("Button Subscribe at (re)rendering: Subscribed file list: " + String(subscription.length))
+    // console.log(isSubscribed);
+
+    if (isSubscribed) {
+      return (
+        <button className="px-4 py-2 font-bold text-sm bg-pink-800 text-white rounded-full shadow-sm"
+          onClick={() => handleUnsubscribbing()}>
+          Unsubscribe
+        </button>
+      )
+    } else {
+      return (
+        <button className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
+          onClick={() => handleSubscribbing()}>
+          Subscribe
         </button>
       )
     }
