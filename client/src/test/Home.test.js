@@ -3,7 +3,6 @@ import { render, fireEvent, screen } from "@testing-library/react";
 import Home from "../components/Home";
 import { useNavigate } from "react-router-dom";
 import FollowedItemList from "../components/FollowedItemList";
-import Banner from "../components/Banner"
 import ItemList from "../components/ItemList";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link, BrowserRouter } from 'react-router-dom'
@@ -11,13 +10,17 @@ import { Link, BrowserRouter } from 'react-router-dom'
 jest.mock("@auth0/auth0-react");
 
 jest.doMock('../components/SideBar', () => {
-  const mockSideBar = () => <div />;
-  return mockSideBar;
+  const SideBar = () => <div />;
+  return SideBar;
 });
 
-const mockSideBar = require('../components/SideBar').default;
+jest.mock('../components/SideBar');
+jest.mock('../components/Banner');
 
-describe("Home Component Tests", () => {
+const SideBar = require('../components/SideBar').default;
+const Banner = require('../components/Banner').default;
+
+describe("Home Component Tests Before Login", () => {
     const mockLoginWithRedirect = jest.fn();
     const mockBanner = jest.fn();
     const mockItemList = jest.fn();
@@ -29,7 +32,7 @@ describe("Home Component Tests", () => {
         isAuthenticated: false,
         loginWithRedirect: mockLoginWithRedirect,
       });
-      Banner.mockReturnValue({mockBanner});
+      // Banner.mockReturnValue({ Banner() => {return (<div />})});
 
     });
 

@@ -10,12 +10,12 @@ const SideBar = () => {
     const [formData, setFormData] = useState({
         name: '',
         fileLink: '',
-        imageLink: '',
-        videoLink: '',
+        imageLink: null,
+        videoLink: null,
         fileInd: 'External',
         imageInd: 'External',
-        videoInd: null,
-        description: ''
+        videoInd: 'External',
+        description: null
     });
 
     const toggleForm = () => {

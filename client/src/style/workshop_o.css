@@ -715,6 +715,10 @@ video {
   width: 100%;
 }
 
+.w-11\/12 {
+  width: 91.666667%;
+}
+
 .origin-\[0\] {
   transform-origin: 0;
 }

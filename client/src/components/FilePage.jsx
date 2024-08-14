@@ -220,11 +220,19 @@ export default function FilePage() {
     fetchContent();
   }, [fileId]);
 
-
+  let hasVideo = false;
+  let videoInsert = ''
 
   if (loading) return <p>Loading content...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!content) return <p>No content found.</p>;
+  if (content.video) {
+    console.log("Video link detected");
+    hasVideo = true;
+    videoInsert = '<div> <iframe class="w-full h-full object-cover object-center max-h-full" src="'
+      + content.video + '?enablejsapi=1&amp;origin=http://localhost:3000" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; '
+      + 'clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen=""></iframe></div>';
+  }
 
 
   return (
@@ -234,8 +242,10 @@ export default function FilePage() {
         <div className="bg-sky-100 min-h-full w-3/4 pt-8 px-4 justify-self-center grid grid-cols-2">
 
           <div className="grid grid-cols-2 col-span-2 ring-1 ring-slate-300 rounded-lg bg-slate-50">
-            <div className="w-4/5 h-96 max-h-128 overflow-hidden ring-1 ring-slate-200 rounded-lg">
-              <img src={content.image} alt={content.name} className="w-full h-full object-cover object-center max-h-full" />
+            <div className="w-11/12 h-96 max-h-128 overflow-hidden ring-1 ring-slate-200 rounded-lg">
+              {hasVideo ? (<iframe className="w-full h-full object-cover object-center max-h-full" src={`${content.video}?enablejsapi=1&amp;origin=http://localhost:3000`} title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />) :
+                (<img src={content.image} alt={content.name} className="w-full h-full object-cover object-center max-h-full" />)
+              }
             </div>
             <div>
               <h2 className="text-2xl font-extrabold pt-4 tracking-tight">{content.name}</h2>
@@ -255,6 +265,6 @@ export default function FilePage() {
         </div>
       </div>
 
-    </div>
+    </div >
   );
 }
