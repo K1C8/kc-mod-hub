@@ -69,8 +69,8 @@ export default function Profile() {
             <ul className="grid grid-cols-3 gap-3 px-4 pb-4">
               {subscription.map((sub) => (
                 <Link key={sub.content.id + 10000000} to={"/file/" + String(sub.content.id)}>
-                  <div className="content-item bg-gray-50 rounded-xl ring-1 ring-slate-300 p-3">
-                    <div className="w-full h-64 max-h-80 overflow-hidden ring-1 ring-slate-300 rounded-lg">
+                  <div className="bg-gray-50 h-96 max-h-96 overflow-hidden rounded-xl ring-1 ring-slate-300 p-3">
+                    <div className="w-full h-60 max-h-60 overflow-hidden ring-1 ring-slate-300 rounded-lg">
                       <img src={sub.content.image} alt={sub.content.name} className="w-full h-full object-cover object-center max-h-full" />
                     </div>
                     <h3 className="text-xl font-semibold pt-2">{sub.content.name}</h3>

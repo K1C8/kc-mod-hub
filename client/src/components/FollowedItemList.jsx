@@ -14,11 +14,12 @@ const FollowedItemList = () => {
         <h2 className='text-xl font-bold col-span-3'>Contents From Users You Followed</h2>
         {contents.map((content) => (
           <Link key={content.id} to={"/file/" + String(content.id)}>
-            <div className="content-item bg-gray-50 rounded-xl ring-1 ring-slate-300 p-3">
-              <div className="w-full h-64 max-h-80 overflow-hidden ring-1 ring-slate-300 rounded-lg">
+            <div className="bg-gray-50 h-96 max-h-96 overflow-hidden rounded-xl ring-1 ring-slate-300 p-3">
+              <div className="w-full h-60 max-h-60 overflow-hidden ring-1 ring-slate-300 rounded-lg">
                 <img src={content.image} alt={content.name} className="w-full h-full object-cover object-center max-h-full" />
               </div>
-              <h3 className="text-xl font-semibold pt-2">{content.name}</h3>
+              <h3 className="text-xl font-semibold py-2">{content.name}</h3>
+              <p className="font-medium pb-2">Uploaded by: {content.author.nickname}</p>
               <p className="font-light pb-2">{content.desc}</p>
             </div>
           </Link>

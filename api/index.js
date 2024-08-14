@@ -288,6 +288,9 @@ app.get("/get-followed-contents", requireAuth, async (req, res) => {
     } else {
       console.log(`Followed users of user id ${userId} are: ${followedUserId}`);
       const followedUsersContents = await prisma.content.findMany({
+        include: {
+          author: true
+        },
         where: {
           authorId: {
             in: followedUserId
