@@ -19,8 +19,8 @@ export default function FilePage() {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [subscription, setSubscription] = useSubscription();
-  const [followed, setFollowed] = useFollow();
+  const [subscription, setSubscription] = useSubscription([]);
+  const [followed, setFollowed] = useFollow([]);
 
   async function addSubscription(fileId) {
     // insert a new subscription item, passing the accessToken in the Authorization header
@@ -35,8 +35,8 @@ export default function FilePage() {
       }),
     });
     if (data.ok) {
-      const subscription = await data.json();
-      return subscription;
+      const subbed = await data.json();
+      return subbed;
     } else {
       return null;
     }
@@ -55,8 +55,8 @@ export default function FilePage() {
       }),
     });
     if (data.ok) {
-      const subscription = await data.json();
-      return subscription;
+      const unsubbed = await data.json();
+      return unsubbed;
     } else {
       return null;
     }
@@ -109,16 +109,23 @@ export default function FilePage() {
       setSubscription([...subscription, newSubscription]);
     }
 
-    console.log(subscription)
+    // console.log(subscription)
   };
 
   const handleUnsubscribbing = async () => {
     const subscriptionToDel = await delSubscription(parseInt(fileId));
+
+    // console.log(parseInt(fileId))
     if (subscriptionToDel) {
       setSubscription((prevSubscriptions) =>
-        prevSubscriptions.filter((sub) => sub.contentId !== fileId)
+        prevSubscriptions.filter((sub) => {
+          return sub.contentId !== parseInt(fileId)
+        })
       );
     }
+
+    // console.log(subscriptionToDel)
+    // console.log(subscription)
   };
 
   const handleFollowing = async () => {
@@ -202,11 +209,6 @@ export default function FilePage() {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
-        // if (data.imageInd === "Internal") {
-        //   data.image = imgPath + data.image;
-        // } else if (data.imageInd === "External") {
-
-        // }
         setContent(data);
       } catch (err) {
         setError(err.message);

@@ -187,6 +187,14 @@ app.get("/get-user-subscription", requireAuth, async (req, res) => {
     });
     console.log(`Subscriptions of user id ${id} are ${subscribedContents.length}`);
 
+    const imgPath = `${process.env.REACT_APP_API_URL}/`
+
+    for (var i = 0; i < subscribedContents.length; i++) {
+      if (subscribedContents[i].content.imageInd === "Internal") {
+        subscribedContents[i].content.image = imgPath + subscribedContents[i].content.image;
+      }
+    }
+
 
     res.removeHeader('Cache-Control');
     res.removeHeader('ETag');
@@ -464,7 +472,7 @@ app.delete('/unsubscibe-content', requireAuth, async (req, res) => {
   if (userId) {
     console.log(`User id ${parseInt(userId)} is going to unsubscribe ${parseInt(contentId)}.`)
     try {
-      const delSubscription = await prisma.userSubscription.delete({
+      let delSubscription = await prisma.userSubscription.delete({
         where: {
           userId_contentId: { // This is how you refer to composite keys in Prisma
             userId: parseInt(userId),

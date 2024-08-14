@@ -4,7 +4,6 @@ import { useAuthToken } from "../AuthTokenContext";
 export default function useSubscription() {
     const [subscription, setSubscription] = useState([]);
     const { accessToken } = useAuthToken();
-    const [isFetching, setIsFetching] = useState(true);
 
     // AuthToken will be checked at the back-end during unsubscribbing content. 
     useEffect(() => {
@@ -18,13 +17,12 @@ export default function useSubscription() {
             });
             const result = await data.json();
             setSubscription(result);
-            setIsFetching(false);
             // console.log("From useSubscription.js, subscriptions are :");
             // console.log(subscription);
         }
 
         subscribing();
-    }, [isFetching]);
+    }, []);
 
 
     return [subscription, setSubscription];

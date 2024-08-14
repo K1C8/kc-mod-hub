@@ -26,25 +26,31 @@ export default function Profile() {
 
   useEffect(() => {
     async function subscribing() {
-        const data = await fetch(`${process.env.REACT_APP_API_URL}/get-user-subscription`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-            }
-        });
-        const result = await data.json();
-        setSubscription(result);
-        setIsFetching(false);
-        console.log("From useSubscription.js, subscriptions are :");
-        console.log(subscription);
+      const data = await fetch(`${process.env.REACT_APP_API_URL}/get-user-subscription`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        }
+      });
+      const result = await data.json();
+      setSubscription(result);
+      setIsFetching(false);
+      console.log("From useSubscription.js, subscriptions are :");
+      console.log(subscription);
     }
 
     subscribing();
-  }, []);
+  }, [accessToken]);
 
   if (isFetching) {
-    return <p>Loading...</p>; // Show a loading message or spinner while data is being fetched
+    return (
+      <div className="bg-sky-100">
+        <Banner />
+        <h1 className="text-2xl px-8 font-extrabold py-8 tracking-tight">Loading...</h1>
+      </div>
+
+    ); // Show a loading message or spinner while data is being fetched
   }
 
   return (
@@ -58,17 +64,17 @@ export default function Profile() {
             <h1 className="px-4 text-2xl font-extrabold py-8 tracking-tight">Your profile at Modding Hub</h1>
 
             <h2 className='px-4 text-xl font-bold col-span-3'>Contents You Subscribbed</h2>
-            
+
             {/* <SubscribedItemList /> */}
             <ul className="grid grid-cols-3 gap-3 px-4 pb-4">
               {subscription.map((sub) => (
-                <Link key={sub.id+100} to={"/file/" + String(sub.id)}>
+                <Link key={sub.content.id + 10000000} to={"/file/" + String(sub.content.id)}>
                   <div className="content-item bg-gray-50 rounded-xl ring-1 ring-slate-300 p-3">
                     <div className="w-full h-64 max-h-80 overflow-hidden ring-1 ring-slate-300 rounded-lg">
-                      <img src={sub.image} alt={sub.name} className="w-full h-full object-cover object-center max-h-full" />
+                      <img src={sub.content.image} alt={sub.content.name} className="w-full h-full object-cover object-center max-h-full" />
                     </div>
-                    <h3 className="text-xl font-semibold pt-2">{sub.name}</h3>
-                    <p className="font-light pb-2">{sub.desc}</p>
+                    <h3 className="text-xl font-semibold pt-2">{sub.content.name}</h3>
+                    <p className="font-light pb-2">{sub.content.desc}</p>
                   </div>
                 </Link>
               ))}
