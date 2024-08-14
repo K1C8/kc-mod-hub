@@ -11,7 +11,7 @@ const FollowedItemList = () => {
   if (contents != null) 
     return (
       <div className="grid grid-cols-3 gap-3 px-4 pb-4">
-        <p className='text-xl font-bold col-span-3'>Contents From Users You Followed</p>
+        <h2 className='text-xl font-bold col-span-3'>Contents From Users You Followed</h2>
         {contents.map((content) => (
           <Link key={content.id} to={"/file/" + String(content.id)}>
             <div className="content-item bg-gray-50 rounded-xl ring-1 ring-slate-300 p-3">

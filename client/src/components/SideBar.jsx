@@ -1,8 +1,10 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { useState } from "react";
+import { useAuthToken } from "../AuthTokenContext";
 
 const SideBar = () => {
     const { user, isAuthenticated } = useAuth0();
+    const { accessToken } = useAuthToken();
 
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -10,6 +12,9 @@ const SideBar = () => {
         fileLink: '',
         imageLink: '',
         videoLink: '',
+        fileInd: 'External',
+        imageInd: 'External',
+        videoInd: null,
         description: ''
     });
 
@@ -24,10 +29,34 @@ const SideBar = () => {
         });
     };
 
+    async function addModEntry() {
+        // insert a new followed user, passing the accessToken in the Authorization header
+        const data = await fetch(`${process.env.REACT_APP_API_URL}/add-mod-entry`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(formData),
+        });
+        if (data.ok) {
+          const result = await data.json();
+          return result;
+        } else {
+          return null;
+        }
+      }
+
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle form submission logic
+        if (formData.videoLink) 
+            setFormData({
+                ...formData,
+                videoInd: 'External'
+            });
         console.log(formData);
+        addModEntry();
         toggleForm();
     };
 
@@ -144,7 +173,7 @@ const SideBar = () => {
                                     htmlFor="videoLink"
                                     className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
                                 >
-                                    Video Link
+                                    Video Link (Optional)
                                 </label>
                             </div>
                             <div className="relative mb-4 rounded-xl ring-1 ring-slate-300">

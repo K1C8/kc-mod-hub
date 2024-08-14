@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 import useSubscription from '../hooks/useSubscription';
 
 const SubscribedItemList = () => {
-  const { user, isAuthenticated } = useAuth0();
-  const [subscription, setSubscription] = useSubscription();
+  const { user, isAuthenticated, isLoading } = useAuth0();
+  const [subscription, setSubscription] = useSubscription([]);
 
-  if (subscription != null) 
+  if (!subscription) {
     console.log(subscription)
     return (
       <ul className="grid grid-cols-3 gap-3 px-4 pb-4">
@@ -25,6 +25,7 @@ const SubscribedItemList = () => {
         ))}
       </ul>
     );
+  }
 };
 
 export default SubscribedItemList;

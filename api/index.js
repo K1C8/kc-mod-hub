@@ -90,15 +90,18 @@ app.get('/get-contents', async (req, res) => {
   try {
     // Fetch all Content entries from the database
     const contents = await prisma.content.findMany({
-      select: {
-        id: true,
-        name: true,
-        file: true,
-        fileInd: true,
-        image: true,
-        imageInd: true,
-        lastUpdateTime: true,
-        desc: true,
+      // select: {
+      //   id: true,
+      //   name: true,
+      //   file: true,
+      //   fileInd: true,
+      //   image: true,
+      //   imageInd: true,
+      //   lastUpdateTime: true,
+      //   desc: true,
+      // },
+      include: {
+        author: true
       },
       orderBy: {
         lastUpdateTime: 'desc',
@@ -182,7 +185,12 @@ app.get("/get-user-subscription", requireAuth, async (req, res) => {
         userId: parseInt(id),
       },
     });
-    console.log(`Subscriptions of user id ${id} ar ${subscribedContents}`);
+    console.log(`Subscriptions of user id ${id} are ${subscribedContents.length}`);
+
+
+    res.removeHeader('Cache-Control');
+    res.removeHeader('ETag');
+    res.removeHeader('Last-Modified');
 
     // Send the fetched data as the response
     res.status(200).json(subscribedContents);
@@ -324,6 +332,53 @@ app.post('/upload-mod', modupload.single('file'), (req, res) => {
     path: req.file.path
   });
 });
+
+
+app.post('/add-mod-entry', requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  if (!(typeof auth0Id === 'string')) {
+    throw TypeError("Auth0Id is not a valid string.")
+  }
+
+  const userId = await getUserIdFromAuth0Id(auth0Id);
+  console.log(`User id checked from auth0 is ${userId} in /add-mod-entry.`);
+  const { name, fileLink, imageLink, videoLink, fileInd, imageInd, videoInd, description } = req.body;
+  if (!name || !fileLink || !fileInd || !imageLink || !imageInd
+    || !description) {
+    return res.status(400).json({ error: 'Incomplete submission.' });
+  } else if (videoLink && !videoInd) {
+    return res.status(400).json({ error: 'Video link indicator missing.' });
+  }
+  console.log(`Add mod entry received content: ${name},${fileLink},${imageLink},${videoLink},${fileInd},${imageInd},${videoInd},${description}`)
+  if (userId) {
+    try {
+      const newEntry = await prisma.content.create({
+        data: {
+          name: name,
+          authorId: userId,
+          file: fileLink,
+          image: imageLink,
+          video: videoLink,
+          fileInd: fileInd,
+          imageInd: imageInd,
+          videoInd: videoInd,
+          desc: description,
+        },
+      });
+
+      res.status(200).json(newEntry);
+
+    } catch (e) {
+      res.status(500).send("Server encountered problems during processing new entry.");
+      console.log(String(e))
+    }
+
+  } else {
+    // If the user is not registered, refuse the request to subscribe.
+    res.status(403).send("Unauthorized subscribing action detected.")
+  }
+});
+
 
 app.post('/subscibe-content', requireAuth, async (req, res) => {
   const auth0Id = req.auth.payload.sub;
