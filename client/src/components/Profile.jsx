@@ -6,8 +6,6 @@ import Banner from "./Banner"
 import ItemList from "./ItemList";
 import '../style/workshop_o.css'
 import FollowedItemList from "./FollowedItemList";
-import SubscribedItemList from "./SubscribedItemList"
-import useSubscription from "../hooks/useSubscription";
 
 export default function Profile() {
   const { user, loginWithRedirect, isAuthenticated, isLoading } = useAuth0();

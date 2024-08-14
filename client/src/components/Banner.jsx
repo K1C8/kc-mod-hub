@@ -4,7 +4,6 @@ import "../style/workshop_o.css"
 import AuthDebug from "./AuthDebug";
 
 export default function Banner() {
-    const navigate = useNavigate();
     const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
     const signUp = () => loginWithRedirect({ screen_hint: "signup" });
 
