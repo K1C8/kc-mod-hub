@@ -9,14 +9,21 @@ const SideBar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
-        fileLink: '',
-        imageLink: null,
-        videoLink: null,
+        file: '',
+        imageLink: '',
+        videoLink: '',
         fileInd: 'External',
         imageInd: 'External',
         videoInd: 'External',
-        description: null
+        description: ''
     });
+
+    // const fileButton = document.getElementById("file_button");
+    // const picButton = document.getElementById("pic_button");
+
+    // if (fileButton != null) {
+    //     fileButton.addEventListener("click", onFileChange);
+    // }
 
     const toggleForm = () => {
         setIsOpen(!isOpen);
@@ -27,6 +34,8 @@ const SideBar = () => {
             ...formData,
             [e.target.name]: e.target.value
         });
+        // console.log(e.target.name + ": " + e.targe.value);
+        console.log(formData);
     };
 
     async function addModEntry() {
@@ -47,7 +56,31 @@ const SideBar = () => {
         }
       }
 
-    const handleSubmit = (e) => {
+    const onFileChangeCheckType = (e) => {
+        let files = e.target.files;
+        if (!files.length) return;
+        let file = files[0];
+
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            console.log(e);
+            let fileContent = e.target.result;
+            let fileType = fileContent.split(',')[0].split(':')[1].split(';')[0];
+            console.log('File type is: ', fileType);
+            if (fileContent !== "application/x-msdownload") 
+                return; // Add a pop up for warning wrong file and reset file selected
+        };
+        if (file !== '') {
+            reader.readAsDataURL(file);
+        }
+        handleChange(e);
+    };
+
+    const uploadS3Pic = async (id) => {
+
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         // Handle form submission logic
         if (formData.videoLink) 
@@ -56,7 +89,12 @@ const SideBar = () => {
                 videoInd: 'External'
             });
         console.log(formData);
-        addModEntry();
+        var res = await addModEntry();
+        if (res != null) {
+            console.log(res);
+            var id = res.id;
+            console.log(id); 
+        }
         toggleForm();
     };
 
@@ -119,7 +157,7 @@ const SideBar = () => {
                                     Name
                                 </label>
                             </div>
-                            <div className="relative mb-4 rounded-xl ring-1 ring-slate-300">
+                            {/* <div className="relative mb-4 rounded-xl ring-1 ring-slate-300">
                                 <input
                                     type="text"
                                     id="fileLink"
@@ -137,7 +175,24 @@ const SideBar = () => {
                                 >
                                     File Link
                                 </label>
-                            </div>
+                            </div> */}
+                            <label className="block">
+                                <span className="sr-only">Choose dll file to upload</span>
+                                <input 
+                                    type="file" 
+                                    id="file" 
+                                    name="file"
+                                    value={formData.file}
+                                    onChange={onFileChangeCheckType}
+                                    className="block w-full text-sm text-slate-500
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-blue-500 file:text-white
+                                    hover:file:bg-blue-700"
+                                    aria-labelledby="file-button-input"
+                                />
+                            </label>
                             <div className="relative mb-4 rounded-xl ring-1 ring-slate-300">
                                 <input
                                     type="text"
@@ -218,3 +273,4 @@ const SideBar = () => {
 };
 
 export default SideBar;
+
