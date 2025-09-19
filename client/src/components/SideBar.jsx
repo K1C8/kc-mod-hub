@@ -7,10 +7,12 @@ const SideBar = () => {
     const { accessToken } = useAuthToken();
 
     const [isOpen, setIsOpen] = useState(false);
+    const [dllFile, setDllFile] = useState('');
+    const [previewFile, setPreviewFile] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         file: '',
-        imageLink: '',
+        preview_image: '',
         videoLink: '',
         fileInd: 'External',
         imageInd: 'External',
@@ -30,11 +32,12 @@ const SideBar = () => {
     };
 
     const handleChange = (e) => {
+
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
-        // console.log(e.target.name + ": " + e.targe.value);
+        
         console.log(formData);
     };
 
@@ -44,7 +47,7 @@ const SideBar = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`
           },
           body: JSON.stringify(formData),
         });
@@ -56,28 +59,87 @@ const SideBar = () => {
         }
       }
 
-    const onFileChangeCheckType = (e) => {
-        let files = e.target.files;
-        if (!files.length) return;
-        let file = files[0];
+    const onUploadChangeCheckType = (e) => {
+        let inputName = e.target.name;
+        const file = e.target.files?.[0];
+        const { type: fileType } = file;
+        if (!file) return;
 
-        let reader = new FileReader();
-        reader.onload = (e) => {
-            console.log(e);
-            let fileContent = e.target.result;
-            let fileType = fileContent.split(',')[0].split(':')[1].split(';')[0];
-            console.log('File type is: ', fileType);
-            if (fileContent !== "application/x-msdownload") 
-                return; // Add a pop up for warning wrong file and reset file selected
-        };
-        if (file !== '') {
-            reader.readAsDataURL(file);
+        console.log('File path: ', file, ', file type is ', fileType);
+        let isValid = false;
+
+        switch(inputName) {
+            case 'file' : {
+                if (fileType === 'application/x-msdownload') {
+                    isValid = true;
+                    setDllFile(file);
+                    console.log('DLL file after selection: ', dllFile);
+                } else {
+                    console.warn('File type ', fileType, ' does not matched required type');
+                    // TODO: Add a pop up for warning wrong file and reset file selected
+                }
+                break;
+            }
+            case "preview_image" : {
+                if (fileType === 'image/png' || fileType === 'image/jpeg') {
+                    isValid = true;
+                    setPreviewFile(file);
+                    console.log('Preview image after selection: ', previewFile);
+                } else {
+                    console.warn('File type ', fileType, ' is not a valid MIME type for png or jpeg');
+                    // TODO: Add a pop up for warning wrong file and reset file selected
+                }
+                break;
+            }
+            default: {
+                console.log('Input target not recognized.');
+                break;
+            }
         }
-        handleChange(e);
+
+        console.log("File check result: ", isValid);
+        if (isValid)
+            handleChange(e);
     };
 
-    const uploadS3Pic = async (id) => {
+    // const onPreviewChangeCheckType = (e) => {
+    //     let files = e.target.files;
+    //     if (!files.length) return;
+    //     let file = files[0];
 
+    //     let reader = new FileReader();
+    //     reader.onload = (e) => {
+    //         console.log(e);
+    //         let fileContent = e.target.result;
+    //         let fileType = fileContent.split(',')[0].split(':')[1].split(';')[0];
+    //         console.log('File type is: ', fileType);
+    //         if (fileContent !== "image/jpeg" || fileContent !== "image/png") 
+    //             return; // Add a pop up for warning wrong file and reset file selected
+    //     };
+    //     if (file !== '') {
+    //         reader.readAsDataURL(file);
+    //     }
+    //     handleChange(e);
+    // };
+
+    const resetFile = (e) => {
+        setFormData({
+            ...formData,
+            file: ''
+        });
+    }
+
+    const resetPreview = (e) => {
+        setFormData({
+            ...formData,
+            preview_image: ''
+        });
+    }
+    
+
+    function createS3EntryId(id) {
+        var result = 0;
+        return result;
     }
 
     const handleSubmit = async (e) => {
@@ -183,7 +245,7 @@ const SideBar = () => {
                                     id="file" 
                                     name="file"
                                     value={formData.file}
-                                    onChange={onFileChangeCheckType}
+                                    onChange={onUploadChangeCheckType}
                                     className="block w-full text-sm text-slate-500
                                     file:mr-4 file:py-2 file:px-4
                                     file:rounded-full file:border-0
@@ -193,7 +255,40 @@ const SideBar = () => {
                                     aria-labelledby="file-button-input"
                                 />
                             </label>
-                            <div className="relative mb-4 rounded-xl ring-1 ring-slate-300">
+                            <label className="block">
+                                <span className="sr-only">Choose preview image to upload</span>
+                                <input 
+                                    type="file" 
+                                    id="preview_image" 
+                                    name="preview_image"
+                                    value={formData.preview_image}
+                                    onChange={onUploadChangeCheckType}
+                                    className="block w-full text-sm text-slate-500
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-blue-500 file:text-white
+                                    hover:file:bg-blue-700"
+                                    aria-labelledby="file-button-input"
+                                />
+                            </label>
+                            <div className="">
+                                <button
+                                    type="button"
+                                    onClick={resetFile}
+                                    className="px-4 py-2 font-bold text-sm bg-orange-800 text-white rounded-full shadow-sm"
+                                >
+                                    Reset File
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={resetPreview}
+                                    className="px-4 py-2 font-bold text-sm bg-blue-800 text-white rounded-full shadow-sm"
+                                >
+                                    Reset Preview
+                                </button>
+                            </div>
+                            {/* <div className="relative mb-4 rounded-xl ring-1 ring-slate-300">
                                 <input
                                     type="text"
                                     id="imageLink"
@@ -211,7 +306,7 @@ const SideBar = () => {
                                 >
                                     Image Link
                                 </label>
-                            </div>
+                            </div> */}
                             <div className="relative mb-4 rounded-xl ring-1 ring-slate-300">
                                 <input
                                     type="text"
