@@ -5,7 +5,7 @@ import pkg from "@prisma/client";
 import morgan from "morgan";
 import cors from "cors";
 import { auth } from "express-oauth2-jwt-bearer";
-import modupload from "./modupload.mjs";
+import { getNextContentId } from "./modupload.mjs";
 import path from "path";
 
 // this is a middleware that will validate the access token sent by the client
@@ -328,21 +328,55 @@ app.get("/get-followed-contents", requireAuth, async (req, res) => {
 
 });
 
+// Get request for next id for new mod
+app.get('/get-next-content-id', requireAuth, async (req, res) => {
+  try {
+    const auth0Id = req.auth.payload.sub;
+    console.log(`${auth0Id}`);
+    if (!(typeof auth0Id === 'string')) {
+      throw TypeError("Auth0Id is not a valid string.")
+    }
+    
+    // var modupload = require('./modupload.mjs');
+    const newId = await getNextContentId();
+    console.log(`New content ID is ${newId}`);
+    if (newId <= 0 || !(!isNaN(parseFloat(newId)) && !isNaN(newId - 0))) {
+      throw TypeError("New content ID is not a valid number.")
+    }
+    // Send the fetched data as the response
+    res.status(200).json(newId);
 
-// Use ModUpload middleware for handling mod uploads
-app.post('/upload-mod', modupload.single('file'), (req, res) => {
-  console.log(req.file.filename);
-  if (!req.file) {
-    console.log("Bad request received.");
-    return res.status(400).json({ error: 'No file uploaded' });
+  } catch (e) {
+    if (e instanceof TypeError) {
+      // TypeError action here
+      console.error('Error fetching content:', e);
+      res.status(400).json({ error: 'Auth0Id is not a valid string.' });
+    } else {
+      // Handle other errors
+      console.error('Error fetching content:', e);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+
   }
 
-  // Respond with file details
-  res.status(200).json({
-    file: req.file.filename,
-    path: req.file.path
-  });
+
 });
+
+
+// Use ModUpload middleware for handling mod uploads
+// app.post('/upload-mod', modupload.single('file'), (req, res) => {
+//   console.log(req.file.filename);
+//   if (!req.file) {
+//     console.log("Bad request received.");
+//     return res.status(400).json({ error: 'No file uploaded' });
+//   }
+
+//   // Respond with file details
+//   res.status(200).json({
+//     file: req.file.filename,
+//     path: req.file.path
+//   });
+// });
 
 
 app.post('/add-mod-entry', requireAuth, async (req, res) => {
@@ -354,6 +388,7 @@ app.post('/add-mod-entry', requireAuth, async (req, res) => {
   const userId = await getUserIdFromAuth0Id(auth0Id);
   console.log(`User id checked from auth0 is ${userId} in /add-mod-entry.`);
   const { name, fileLink, imageLink, videoLink, fileInd, imageInd, videoInd, description } = req.body;
+  console.log(`Filelink got is ${fileLink}, imageLink got is ${imageLink}.`);
   if (!name || !fileLink || !fileInd || !imageLink || !imageInd
     || !description) {
     return res.status(400).json({ error: 'Incomplete submission.' });
@@ -538,10 +573,10 @@ app.delete('/unfollow-user', requireAuth, async (req, res) => {
 // const modDirPath = "./"
 
 // Serve static files from the 'img_uploads' directory
-app.use('/img_uploads', express.static('img_uploads'));
+// app.use('/img_uploads', express.static('img_uploads'));
 
 // Serve static files from the 'img_uploads' directory
-app.use('/mod_uploads', express.static('mod_uploads'));
+// app.use('/mod_uploads', express.static('mod_uploads'));
 
 
 
