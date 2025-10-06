@@ -51,3 +51,15 @@ export async function getNextContentId() {
   });
   return (result?.id || 0) + 1; // Increment the highest ID by 1
 }
+
+export async function getModAuthorId(modId) {
+  const result = await prisma.content.findFirst({
+    where: {
+      id: modId
+    }, 
+    select: {
+      authorId: true
+    }
+  });
+  return result.authorId;
+}

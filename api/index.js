@@ -5,7 +5,7 @@ import pkg from "@prisma/client";
 import morgan from "morgan";
 import cors from "cors";
 import { auth } from "express-oauth2-jwt-bearer";
-import { getNextContentId } from "./modupload.mjs";
+import { getNextContentId, getModAuthorId} from "./modupload.mjs";
 import path from "path";
 
 // this is a middleware that will validate the access token sent by the client
@@ -416,13 +416,53 @@ app.post('/add-mod-entry', requireAuth, async (req, res) => {
 
     } catch (e) {
       res.status(500).send("Server encountered problems during processing new entry.");
-      console.log(String(e))
+      console.log(String(e));
     }
 
   } else {
     // If the user is not registered, refuse the request to subscribe.
     res.status(403).send("Unauthorized subscribing action detected.")
   }
+});
+
+app.post('/update-mod-file-preview-path', requireAuth, async (req, res) => {
+  const auth0Id = req.auth.payload.sub;
+  if (!(typeof auth0Id === 'string')) {
+    throw TypeError("Auth0Id is not a valid string.")
+  }
+
+  const userId = await getUserIdFromAuth0Id(auth0Id);
+  console.log(`User id checked from auth0 is ${userId} in /update-mod-file-preview-path.`);
+  const {id, fileLink, imageLink} = req.body;
+  if (!id || !fileLink || !imageLink) {
+    return res.status(400).json({ error: 'Incomplete update request for file and preview path.' });
+  }
+
+  const modAuthorId = await getModAuthorId(id);
+    console.log(`Mod entry id to update is ${id}, mod author id is ${modAuthorId}, file download path received is ${fileLink}, preview path ${imageLink}. Req is from user id ${userId}`);
+
+  if (userId && modAuthorId && userId == modAuthorId) {
+    try {
+      const updateResult = await prisma.content.update({
+        where: {
+          id: id,
+        },
+        data: {
+          file: fileLink,
+          image: imageLink,
+        }
+      });
+
+      res.status(200).json(updateResult);
+    } catch (e) {
+      res.status(500).send("Server could not update file download path properly.");
+      console.log(String(e));
+    }
+  } else {
+    // If the user is not registered nor not the author of the mod, refuse the request to update.
+    res.status(403).send("Unauthorized update action detected.");
+  }
+
 });
 
 

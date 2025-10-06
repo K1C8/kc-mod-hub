@@ -24,6 +24,8 @@ const SideBar = () => {
         description: ''
     });
 
+    var isSubmitTriggered = false;
+
     // const fileButton = document.getElementById("file_button");
     // const picButton = document.getElementById("pic_button");
 
@@ -32,6 +34,7 @@ const SideBar = () => {
     // }
 
     const toggleForm = () => {
+        isSubmitTriggered = false;
         setIsOpen(!isOpen);
     };
 
@@ -62,7 +65,7 @@ const SideBar = () => {
         } else {
           return null;
         }
-      }
+    }
 
     // Get ID from node.js backend, which in turn reads the database and return
     async function getNextContentId() {
@@ -96,7 +99,9 @@ const SideBar = () => {
                 if (fileType === 'application/x-msdownload') {
                     isValid = true;
                     setDllFile(file);
-                    console.log('DLL file after selection: ', dllFile.name);
+                    // TODO: Update the input field named 'file' in the form 'uploadForm' to display file name on the browser.
+                    handleChange(e);
+                    console.log('DLL file after selection: ', file.name);
                 } else {
                     console.warn('File type ', fileType, ' does not matched required type');
                     // TODO: Add a pop up for warning wrong file and reset file selected
@@ -107,7 +112,8 @@ const SideBar = () => {
                 if (fileType === 'image/png' || fileType === 'image/jpeg') {
                     isValid = true;
                     setPreviewFile(file);
-                    console.log('Preview image after selection: ', previewFile.name);
+                    handleChange(e);
+                    console.log('Preview image after selection: ', file.name);
                 } else {
                     console.warn('File type ', fileType, ' is not a valid MIME type for png or jpeg');
                     // TODO: Add a pop up for warning wrong file and reset file selected
@@ -161,19 +167,22 @@ const SideBar = () => {
     
     // Get upload links from AWS S3 and update into fileLink + imageLink
     async function createS3FileHandle(id) {
-        var dllReqPath = 'path=' + id + '%2F' + dllFile.name;
-        console.log('DLL AG req path:' , `${process.env.REACT_APP_API_GATEWAY_DLL_URL}/uploadDll?${dllReqPath}`);
-        var previewReqPath = 'path=' + id + '%2F' + previewFile.name;
-        console.log('Preview AG req path: ', `${process.env.REACT_APP_API_GATEWAY_IMG_URL}/uploads?${previewReqPath}`);
+        var dllReqPath = id + '/' + dllFile.name;
+        console.log('DLL AG req path:' , `${process.env.REACT_APP_API_GATEWAY_DLL_URL}/uploadDll?path=${dllReqPath}`);
+
+        var previewReqPath = id + '/' + previewFile.name;
+        const { type: previewType } = previewFile;
+        console.log("Preview image file type is :", previewType);
+        console.log('Preview AG req path: ', `${process.env.REACT_APP_API_GATEWAY_IMG_URL}/uploads?path=${previewReqPath}&type=${previewType}`);
         
-        const dllData = await fetch(`${process.env.REACT_APP_API_GATEWAY_DLL_URL}/uploadDll?${dllReqPath}`, {
+        const dllData = await fetch(`${process.env.REACT_APP_API_GATEWAY_DLL_URL}/uploadDll?path=${dllReqPath}`, {
             method: "GET" //, 
             // headers: {
             //     "Content-Type": "application/json"
             // }
         });
 
-        const previewData = await fetch(`${process.env.REACT_APP_API_GATEWAY_IMG_URL}/uploads?${previewReqPath}`, {
+        const previewData = await fetch(`${process.env.REACT_APP_API_GATEWAY_IMG_URL}/uploads?path=${previewReqPath}&type=${previewType}`, {
             method: "GET" //,
             // headers: {
             //     "Content-Type": "application/json"
@@ -185,21 +194,69 @@ const SideBar = () => {
             const dllResult = await dllData.json();
             const previewResult = await previewData.json();
 
-            const dllS3Path = dllResult.uploadURL;
-            const previewS3Path = previewResult.uploadURL;
-            console.log('DLL S3 upload path: ', dllS3Path, ', Preview Img S3 upload path: ', previewS3Path);
-            setFileLink(dllS3Path);
-            setPreviewLink(previewS3Path);
-            setFormData(async prev => {
-                const next = { ...prev, fileLink: dllS3Path, imageLink: previewS3Path };
-                var res = await addModEntry(next);
-                if (res != null) {
-                    console.log("S3Handle get result from addModEntry() as " + res);
-                    var id = res.id;
-                    console.log(id);
+            const dllS3UploadPath = dllResult.uploadURL;
+            const previewS3UploadPath = previewResult.uploadURL;
+            console.log('DLL S3 upload path: ', dllS3UploadPath, ', Preview Img S3 upload path: ', previewS3UploadPath);
+            const dllS3AccessPath = `${process.env.REACT_APP_S3_DOWNLOAD_BKT_URL}/${dllReqPath}`;
+            const previewS3AccessPath = `${process.env.REACT_APP_S3_DOWNLOAD_BKT_URL}/${previewReqPath}`;
+            setFileLink(dllS3UploadPath);
+            setPreviewLink(previewS3UploadPath);
+            // TODO: implement upload logic using axios.
+            try {
+                const dllUpload = await fetch(dllS3UploadPath, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/x-msdownload"
+                    },
+                    body: dllFile
+                });
+                
+                if (!dllUpload.ok) {
+                    throw new Error(`HTTP error during DLL file upload! status: ${dllUpload.status}`);
                 }
+
+                const previewUpload = await fetch(previewS3UploadPath, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": previewType
+                    },
+                    body: previewFile
+                });
+                
+                if (!previewUpload.ok) {
+                    throw new Error(`HTTP error during preview imange upload! status: ${previewUpload.status}`);
+                }
+
+                console.log('File and preview image uploaded successfully!');
+
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+
+            setFormData(prev => {
+                const next = { ...prev, fileLink: dllS3AccessPath, imageLink: previewS3AccessPath };
                 return next;
             });
+
+            const updatePayload = {
+                id: id,
+                fileLink: dllS3AccessPath,
+                imageLink: previewS3AccessPath
+            };
+
+            const updateData = await fetch(`${process.env.REACT_APP_API_URL}/update-mod-file-preview-path`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(updatePayload),
+            });
+
+            if (!updateData.ok) {
+                return false;
+            }
+
             return true;
         } else {
             return false;
@@ -208,29 +265,35 @@ const SideBar = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitTriggered) {
+            return;
+        }
+        isSubmitTriggered = true;
         // Get S3 link for dll file and preview image
         if (dllFile === '' || previewFile === '') {
             return;
         }
+        var nextForm = formData;
+        const placeholderFile = `${process.env.REACT_APP_S3_DOWNLOAD_BKT_URL}/${process.env.REACT_APP_PLACEHOLDER_FILE}`;
+        console.log(placeholderFile);
         // Handle form submission logic
-        if (formData.videoLink) 
-            setFormData({
-                ...formData,
+        nextForm = {
+                ...nextForm, 
+                fileLink: placeholderFile, 
+                imageLink: placeholderFile,
                 videoInd: 'External'
-            });
-        console.log(formData);
-        var contentIdRes = await getNextContentId();
-        console.log(contentIdRes);
-        await createS3FileHandle(contentIdRes);
+            };
+        console.log(nextForm);
         
-        // if (s3Result) {
-        //     var res = await addModEntry();
-        //     if (res != null) {
-        //         console.log(res);
-        //         var id = res.id;
-        //         console.log(id);
-        //     }
-        // }
+        
+        var res = await addModEntry(nextForm);
+        if (res != null) {
+            console.log(res);
+            var id = res.id;
+            console.log(id);
+        }
+        
+        await createS3FileHandle(id);
         toggleForm();
     };
 
@@ -273,7 +336,7 @@ const SideBar = () => {
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white p-8 rounded-lg shadow-lg w-96">
                         <h2 className='text-xl font-bold ml-2 pb-4 col-span-3'>Upload New File</h2>
-                        <form onSubmit={handleSubmit}>
+                        <form name='uploadForm' onSubmit={handleSubmit}>
                             <div className="relative mb-4 rounded-xl ring-1 ring-slate-300">
                                 <input
                                     type="text"
