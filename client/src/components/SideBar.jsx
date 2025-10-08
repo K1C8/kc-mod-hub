@@ -23,6 +23,7 @@ const SideBar = () => {
         videoInd: 'External',
         description: ''
     });
+    const [searchKeyword, setSearchKeyword] = useState('');
 
     var isSubmitTriggered = false;
 
@@ -127,29 +128,8 @@ const SideBar = () => {
         }
 
         console.log("File check result: ", isValid);
-        // if (isValid)
-        //     handleChange(e);
     };
 
-    // const onPreviewChangeCheckType = (e) => {
-    //     let files = e.target.files;
-    //     if (!files.length) return;
-    //     let file = files[0];
-
-    //     let reader = new FileReader();
-    //     reader.onload = (e) => {
-    //         console.log(e);
-    //         let fileContent = e.target.result;
-    //         let fileType = fileContent.split(',')[0].split(':')[1].split(';')[0];
-    //         console.log('File type is: ', fileType);
-    //         if (fileContent !== "image/jpeg" || fileContent !== "image/png") 
-    //             return; // Add a pop up for warning wrong file and reset file selected
-    //     };
-    //     if (file !== '') {
-    //         reader.readAsDataURL(file);
-    //     }
-    //     handleChange(e);
-    // };
 
     const resetFile = (e) => {
         setFormData({
@@ -297,15 +277,48 @@ const SideBar = () => {
         toggleForm();
     };
 
+    const handleSearchInputChange = (e) => {
+        setSearchKeyword(e.target.value);
+        // console.log(searchKeyword);
+    }
+
     return (
         <div className="content-menu mx-3 bg-slate-50 rounded-xl ring-1 ring-slate-300 gap-3 w-1/4">
-            <div className="m-4 ring-1 ring-slate-300 rounded-lg min-h-12">
-                <p className="inline-block align-middle h-full">Searchbar placeholder</p>
+            <div>
+                <h3 className='m-4 text-xl font-bold'>Search</h3>
+                <div className="flex m-4 p-2 overflow-hidden min-h-16 items-center ring-1 ring-slate-300 rounded-lg focus-within:ring-blue-600">
+                    <input
+                        type="text"
+                        id="search-input"
+                        name="search-input"
+                        className="grow min-w-32 w-full text-base text-gray-900 bg-transparent border-0 appearance-none focus:outline-none focus:ring-0"
+                        placeholder=" "
+                        onChange={handleSearchInputChange}
+                        aria-labelledby="search-input"
+                    />
+                    <button
+                        type="button"
+                        className="flex-none w-16 p-2 h-full font-bold text-sm rounded-lg bg-orange-800 text-white"
+                    >
+                        Go
+                    </button>
+                    {/* <label
+                        id="search-input-label"
+                        htmlFor="search-input"
+                        className="absolute text-sm text-gray-500 duration-300 bg-slate-50 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+                    >
+                        Search Keywords
+                    </label> */}
+                </div>
+            </div>
+            <div>
+                
+                <h3 className='m-4 text-xl font-bold col-span-3'>Your Account</h3>
             </div>
             {isAuthenticated ? (
 
-                <div className="p-4 grid grid-flow-row-dense grid-cols-3">
-                    <img src={String(user.picture)} alt="Your Avatar" className="inline-block size-24 rounded-full ring-2 ring-slate-200"></img>
+                <div className="p-4 grid grid-flow-row-dense grid-cols-3 place-content-center">
+                    <img src={String(user.picture)} alt="Your Avatar" className="place-self-center size-24 rounded-full ring-2 ring-slate-200"></img>
                     <div className="col-span-2">
                         <p className="text-xl font-semibold">{String(user.nickname)}</p>
                         <br />
@@ -375,7 +388,7 @@ const SideBar = () => {
                                     File Link
                                 </label>
                             </div> */}
-                            <label className="block">
+                            <label className="block py-2">
                                 <span className="sr-only">Choose dll file to upload</span>
                                 <input 
                                     type="file" 
@@ -392,7 +405,7 @@ const SideBar = () => {
                                     aria-labelledby="file-button-input"
                                 />
                             </label>
-                            <label className="block">
+                            <label className="block py-2">
                                 <span className="sr-only">Choose preview image to upload</span>
                                 <input 
                                     type="file" 
@@ -409,7 +422,7 @@ const SideBar = () => {
                                     aria-labelledby="file-button-input"
                                 />
                             </label>
-                            <div className="">
+                            <div className="py-2">
                                 <button
                                     type="button"
                                     onClick={resetFile}
@@ -449,7 +462,7 @@ const SideBar = () => {
                                     type="text"
                                     id="videoLink"
                                     name="videoLink"
-                                    className="block w-full px-2.5 pb-2.5 pt-4 text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                    className="block w-full px-2.5 py-2 pt-4 text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                     placeholder=" "
                                     value={formData.videoLink}
                                     onChange={handleChange}
@@ -467,7 +480,7 @@ const SideBar = () => {
                                 <textarea
                                     id="description"
                                     name="description"
-                                    className="block w-full px-2.5 pb-2.5 pt-4 text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                    className="block w-full px-2.5 py-2 pt-4 text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                     placeholder=" "
                                     value={formData.description}
                                     onChange={handleChange}
